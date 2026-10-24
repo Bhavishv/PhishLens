@@ -1,2 +1,31 @@
+# Environment and secrets
 .env
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Raw datasets (never commit)
+data/raw/
+
+# Trained model files
+ml/model/*.joblib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Implementation plan (internal)
 IMPLEMENTATION_PLAN.md

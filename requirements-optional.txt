@@ -1,0 +1,7 @@
+# Optional dependencies — install if needed
+# These may have platform-specific issues or require extra setup.
+
+pyspf          # SPF verification (depends on py3dns; may not install on Windows)
+dkimpy         # DKIM signature verification
+xhtml2pdf      # PDF report export (deferred to future scope)
+geoip2         # Offline MaxMind GeoLite2 IP geolocation

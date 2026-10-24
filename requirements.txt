@@ -1,0 +1,15 @@
+flask
+beautifulsoup4
+lxml
+dnspython
+python-whois
+tldextract
+rapidfuzz
+requests
+scikit-learn
+pandas
+numpy
+joblib
+jinja2
+pyarrow
+pytest

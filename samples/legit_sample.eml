@@ -1,0 +1,65 @@
+Received: from mx.recipient.example.com (mx.recipient.example.com [198.51.100.10])
+    by mail.recipient.example.com (Postfix) with ESMTPS id ABC123
+    for <alice@recipient.example.com>; Wed, 23 Oct 2026 10:31:00 +0000 (UTC)
+Received: from mail.sender.example.com (mail.sender.example.com [198.51.100.20])
+    by mx.recipient.example.com (Postfix) with ESMTPS id DEF456
+    for <alice@recipient.example.com>; Wed, 23 Oct 2026 10:30:55 +0000 (UTC)
+Received: from [192.168.1.42] (unknown [203.0.113.50])
+    by mail.sender.example.com (Postfix) with ESMTPSA id GHI789
+    for <alice@recipient.example.com>; Wed, 23 Oct 2026 10:30:50 +0000 (UTC)
+Authentication-Results: mx.recipient.example.com;
+    spf=pass (sender IP is 198.51.100.20) smtp.mailfrom=sender.example.com;
+    dkim=pass header.d=sender.example.com header.s=sel1;
+    dmarc=pass header.from=sender.example.com
+DKIM-Signature: v=1; a=rsa-sha256; d=sender.example.com; s=sel1;
+    h=from:to:subject:date:message-id;
+    b=dGhpcyBpcyBhIGZha2UgREtJTSBzaWduYXR1cmU=
+Received-SPF: pass (mx.recipient.example.com: domain of bob@sender.example.com
+    designates 198.51.100.20 as permitted sender)
+From: Bob Smith <bob@sender.example.com>
+To: alice@recipient.example.com
+Subject: Quarterly report attached
+Date: Wed, 23 Oct 2026 10:30:45 +0000
+Message-ID: <20261023103045.abc123@sender.example.com>
+Return-Path: <bob@sender.example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_001"
+
+------=_Part_001
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+Hi Alice,
+
+Please find the Q3 quarterly report attached. Let me know if you have
+any questions about the figures on page 12.
+
+Best regards,
+Bob Smith
+Finance Department
+
+------=_Part_001
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<body>
+<p>Hi Alice,</p>
+<p>Please find the Q3 quarterly report attached. Let me know if you have
+any questions about the figures on page 12.</p>
+<p>You can also view the report online at
+<a href="https://reports.sender.example.com/q3-2026">our report portal</a>.</p>
+<p>Best regards,<br/>Bob Smith<br/>Finance Department</p>
+</body>
+</html>
+
+------=_Part_001
+Content-Type: application/pdf; name="Q3_Report_2026.pdf"
+Content-Disposition: attachment; filename="Q3_Report_2026.pdf"
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjQKMSAwIG9iago8PAovVHlwZSAvQ2F0YWxvZwovUGFnZXMgMiAwIFIKPj4KZW5k
+b2JqCjIgMCBvYmoKPDwKL1R5cGUgL1BhZ2VzCi9LaWRzIFszIDAgUl0KL0NvdW50IDEKL01l
+ZGlhQm94IFswIDAgNjEyIDc5Ml0KPj4KZW5kb2JqCg==
+
+------=_Part_001--
