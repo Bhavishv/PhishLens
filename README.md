@@ -312,24 +312,37 @@ A single email has only a handful of hops, so rate limits are not a concern for 
 
 ## 10. Datasets Used
 
-The project uses **publicly available email corpora** that can be downloaded directly, with no login or approval needed. Please check each source for its current terms and availability.
+The project uses **publicly available email corpora** from multiple sources to train its phishing classifier. Using diverse sources reduces bias toward any single dataset's style or era. Please check each source for its current terms and availability before downloading.
 
-| Dataset | Role in this project | Where to get it |
-|---------|---------------------|-----------------|
-| **Nazario Phishing Corpus** | Real **phishing** emails (label = phishing) | `https://monkey.org/~jose/phishing/` |
-| **Apache SpamAssassin Public Corpus** (`easy_ham`, `hard_ham`) | Real **legitimate** emails (label = legit) | `https://spamassassin.apache.org/old/publiccorpus/` |
-| **Enron Email Dataset (CMU)** | Extra **legitimate** emails (sample a few thousand) | `https://www.cs.cmu.edu/~enron/` |
+| Dataset | Label | Role in this project | Where to get it | License / Terms |
+|---------|-------|---------------------|-----------------| --------------- |
+| **Nazario Phishing Corpus** | Phishing (1) | Real phishing emails from the 2000s–2010s | `https://monkey.org/~jose/phishing/` | Research use |
+| **`zefang-liu/phishing-email-dataset`** | Phishing (1) | Curated phishing dataset from Hugging Face | `https://huggingface.co/datasets/zefang-liu/phishing-email-dataset` | Check HF page |
+| **`kxm1k4m1/generate_phishing_email_final`** | Phishing (1) | AI-generated phishing emails (broadens coverage of modern-style attacks) | `https://huggingface.co/datasets/kxm1k4m1/generate_phishing_email_final` | Check HF page |
+| **Apache SpamAssassin Public Corpus** (`easy_ham`, `hard_ham`) | Legit (0) | Real legitimate emails | `https://spamassassin.apache.org/old/publiccorpus/` | Apache License |
+| **Enron Email Dataset (CMU)** | Legit (0) | Extra legitimate emails (sample a few thousand) | `https://www.cs.cmu.edu/~enron/` | Public domain |
 
 ### How we use them
-1. Download the files into `data/raw/`.
+
+1. Download the files into `data/raw/` (one subdirectory per source). The code does **not** auto-download anything.
 2. Read each email and keep the **subject + body text**.
-3. Label phishing as `1` and legitimate as `0`.
-4. Balance the classes (use roughly equal counts).
-5. Split into training (80%) and testing (20%).
-6. Train a TF-IDF + Logistic Regression model.
+3. Apply **uniform text cleaning** across all sources:
+   - Strip residual email headers from the body
+   - Strip signatures (lines after `-- ` or `---`)
+   - Normalize whitespace (collapse multiple spaces and newlines)
+   - Lowercase all text
+4. Label phishing as `1` and legitimate as `0`.
+5. Record a **`source` column** for every row so we can track where each sample came from.
+6. Balance the classes (undersample the majority class or use roughly equal counts).
+7. **Evaluation A — Standard split:** 80/20 stratified train/test split. Report accuracy, precision, recall, and F1.
+8. **Evaluation B — Cross-source test:** Train on all sources except one, test on the held-out source. Report metrics per held-out source. This reveals how well the model generalizes beyond the training sources (expect a gap; this is reported honestly).
+9. Train the final model (TF-IDF + Logistic Regression) on the full Split A training set and save to `ml/model/phishing_model.joblib`.
 
 ### Dataset caveats (please read)
-- These datasets are **older** (roughly 2000s–2010s). Modern AI-written phishing may look different, so accuracy on today's emails will be lower. This is mentioned openly under [Limitations](#19-limitations).
+
+- **Datasets are imperfect and phishing evolves.** The Nazario, SpamAssassin, and Enron corpora date from roughly the 2000s–2010s. Modern AI-written and targeted phishing may look very different, so accuracy on today's emails will be lower than the reported training metrics suggest. The AI-generated phishing dataset (`kxm1k4m1`) helps, but does not fully bridge this gap.
+- **We do not claim real-world accuracy.** The metrics printed during training are on these specific corpora. They **overstate** how well the model performs on fresh, unseen phishing. This caveat is printed during training, shown in the report, and noted under [Limitations](#19-limitations).
+- **Source bias is real.** Different datasets have different formatting, vocabulary, and header artifacts. Uniform text cleaning helps reduce this, but cannot eliminate it entirely. The cross-source evaluation makes this gap visible.
 - Some of these emails contain real names and addresses. **Do not redistribute the raw data**; keep it out of the repository. Only the trained model file is shipped.
 - **Do not use SpamAssassin "spam" as phishing.** Spam and phishing are different. Use it, if at all, as an optional "suspicious" class.
 
@@ -615,7 +628,7 @@ Being honest about limits makes the tool more trustworthy:
 - **Forged headers:** attackers can fake lower `Received` lines, so origin is a *probable* estimate.
 - **Webmail senders:** emails from Gmail, Outlook and similar services show the provider's server, not the person's own device.
 - **VPN/Tor/proxy:** these hide the true source. We flag them but cannot see through them.
-- **Older training data:** public phishing datasets are dated, so very modern or AI-written phishing may be missed.
+- **Training data is imperfect.** The phishing datasets span the 2000s–2010s plus some AI-generated samples. Modern, targeted, or AI-crafted phishing may differ significantly. Training metrics **overstate** real-world accuracy; see [Datasets Used](#10-datasets-used) for details.
 - **No attachment scanning:** v1 lists attachments but does not scan them for malware.
 - **Authentication checks need the original email:** if the message was edited or forwarded, DKIM may fail even for legitimate email.
 - **Free API limits:** lookups may be slow or limited at times.
