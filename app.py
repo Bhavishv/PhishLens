@@ -122,6 +122,26 @@ def get_meta():
     })
 
 
+@app.route("/sample/<name>", methods=["GET"])
+def get_sample(name: str):
+    filename_map = {
+        "legit": "legit_sample.eml",
+        "phishing": "phishing_sample.eml",
+    }
+    filename = filename_map.get(name.lower())
+    if not filename:
+        return jsonify({"error": f"Sample '{name}' not found"}), 404
+
+    sample_path = os.path.join("samples", filename)
+    if not os.path.isfile(sample_path):
+        return jsonify({"error": "Sample file missing on server"}), 404
+
+    with open(sample_path, "r", encoding="utf-8", errors="replace") as fh:
+        content = fh.read()
+
+    return content, 200, {"Content-Type": "text/plain; charset=utf-8"}
+
+
 @app.route("/analyze", methods=["POST", "OPTIONS"])
 def analyze():
     if request.method == "OPTIONS":

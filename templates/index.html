@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}PhishLens — Email Threat Forensic Engine{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Hero Section -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-badge badge badge-accent">
+      <span class="badge-dot" aria-hidden="true"></span>
+      <span>Forensic Inspection Engine</span>
+    </div>
+    <h1 id="hero-title" class="hero-title">
+      <span>Deep Email Threat Telemetry</span>
+    </h1>
+    <p class="hero-subtitle">
+      Inspect suspicious emails, trace MTA relay hops to probable origins, uncover hidden header anomalies, and calculate explainable forensic risk scores.
+    </p>
+  </section>
+
+  <!-- Interactive Analyze Card -->
+  <section class="analyze-card" aria-label="Email Input and Analysis Section">
+    <div class="analyze-card-inner">
+      <!-- Input Tabs -->
+      <div class="tab-list" role="tablist" aria-label="Analysis input methods">
+        <button type="button" id="tabUploadBtn" class="tab-btn" role="tab" aria-selected="true" aria-controls="panelUpload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Upload .EML File</span>
+        </button>
+
+        <button type="button" id="tabPasteBtn" class="tab-btn" role="tab" aria-selected="false" aria-controls="panelPaste">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+          </svg>
+          <span>Paste Raw Email Headers</span>
+        </button>
+      </div>
+
+      <!-- Panel 1: File Upload Dropzone -->
+      <div id="panelUpload" role="tabpanel" aria-labelledby="tabUploadBtn">
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="File upload dropzone. Press Enter to browse files.">
+          <input type="file" id="fileInput" accept=".eml" class="sr-only" aria-hidden="true">
+          <div class="aperture-scan-icon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
+              <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
+              <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
+              <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
+              <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
+              <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+            </svg>
+          </div>
+          <p class="dropzone-title">Drop your .eml email file here</p>
+          <p class="dropzone-browse">or click to browse filesystem</p>
+          <p class="dropzone-hint">Standard RFC 822 / MIME format (.eml) up to 25 MB</p>
+
+          <!-- Selected File Chip -->
+          <div id="fileChip" class="file-chip" style="display: none;">
+            <div class="file-chip-info">
+              <svg class="file-chip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span id="fileName" class="file-chip-name">sample.eml</span>
+              <span id="fileSize" class="file-chip-size">0 KB</span>
+            </div>
+            <button type="button" id="removeFileBtn" class="btn btn-ghost btn-sm" aria-label="Remove selected file" title="Remove file">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 2: Paste Raw Headers -->
+      <div id="panelPaste" role="tabpanel" aria-labelledby="tabPasteBtn" style="display: none;">
+        <label for="rawTextarea" class="sr-only">Raw Email Headers or EML Content</label>
+        <textarea id="rawTextarea" class="raw-textarea" placeholder="Paste raw email headers or entire message content here...
+
+Example:
+From: alerts@bank-security-support.com
+To: user@company.com
+Subject: Urgent: Verify Account Credentials
+Date: Mon, 24 Oct 2026 12:00:00 +0000
+Received: from unknown-relay.net (203.0.113.45) by mx.company.com ..."></textarea>
+
+        <div class="raw-textarea-footer">
+          <span id="charCount">0 characters</span>
+          <button type="button" id="clearRawBtn" class="btn btn-ghost btn-sm">Clear Text</button>
+        </div>
+      </div>
+
+      <!-- Action Row -->
+      <div class="analyze-actions">
+        <button type="button" id="analyzeBtn" class="btn btn-primary btn-lg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>Analyze Email</span>
+        </button>
+
+        <!-- Quick Demo Sample Buttons -->
+        <div class="sample-buttons">
+          <span class="text-muted" style="font-size: var(--text-xs);">Demo Samples:</span>
+          <button type="button" id="sampleLegitBtn" class="btn btn-secondary btn-sm" title="Load synthetic clean email">
+            Legitimate Sample
+          </button>
+          <button type="button" id="samplePhishBtn" class="btn btn-secondary btn-sm" title="Load synthetic phishing email">
+            Phishing Sample
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dynamic Alert Banners Container -->
+  <div id="alertContainer" aria-live="assertive"></div>
+
+  <!-- Staged Progress Loading Card (Hidden by default) -->
+  <div id="progressCard" class="progress-card" style="display: none;" role="status" aria-live="polite">
+    <div class="aperture-spinner" aria-hidden="true"></div>
+    <div class="progress-title">Executing Forensic Pipeline</div>
+    <div id="progressStageText" class="progress-stage-text">Reading email structure...</div>
+    <div class="progress-bar-track" aria-hidden="true">
+      <div id="progressBarFill" class="progress-bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- Results Dashboard Container (Rendered on Analysis Completion) -->
+  <section id="resultsContainer" aria-label="Analysis Results Dashboard"></section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}
