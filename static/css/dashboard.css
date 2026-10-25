@@ -626,3 +626,59 @@
   font-size: var(--text-sm);
   color: var(--text-main);
 }
+
+/* ---------------------------------------------------------------------------
+ * Dashboard Print Styles (A4 / Letter Forensic Export)
+ * --------------------------------------------------------------------------- */
+@media print {
+  .dashboard-root {
+    margin-top: 0 !important;
+    gap: 12pt !important;
+  }
+
+  .dashboard-hero-row {
+    grid-template-columns: 240px 1fr !important;
+    gap: 12pt !important;
+  }
+
+  .gauge-svg-wrapper {
+    width: 150px !important;
+    height: 150px !important;
+  }
+
+  .gauge-score-text {
+    fill: #000000 !important;
+  }
+
+  .gauge-track {
+    stroke: #e5e7eb !important;
+  }
+
+  .gauge-ticks line {
+    stroke: #9ca3af !important;
+  }
+
+  .map-card {
+    display: none !important; /* Leaflet canvas is non-printable; structured table prints instead */
+  }
+
+  .table-card {
+    display: block !important;
+    margin-top: 0 !important;
+  }
+
+  details.collapsible {
+    border: 1px solid #d1d5db !important;
+  }
+
+  details.collapsible summary {
+    display: none !important;
+  }
+
+  .collapsible-body {
+    display: block !important;
+    border-top: none !important;
+    padding: 0 !important;
+  }
+}
+

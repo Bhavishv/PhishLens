@@ -385,57 +385,92 @@ This helps a human understand the result instead of just trusting a number.
 
 ```
 PhishLens/
-├── app.py                     # Flask entry point
-├── config.py                  # Weights, thresholds, API settings
-├── requirements.txt
-├── README.md
-├── LICENSE
+├── app.py                         # Flask entry point & REST API
+├── config.py                      # Centralized weights, thresholds, limits
+├── requirements.txt               # Production dependencies
+├── requirements-optional.txt      # Optional dependencies
+├── README.md                      # Source of truth documentation
+├── FRONTEND_PLAN.md               # Frontend architecture specification
+├── IMPLEMENTATION_PLAN.md         # Full backend implementation plan
+├── LICENSE                        # MIT License
 ├── .gitignore
 │
-├── analyzer/                  # The analysis engine
+├── analyzer/                      # The Forensic Engine
 │   ├── __init__.py
-│   ├── parser.py              # .eml → headers, body, links
-│   ├── auth_checker.py        # SPF / DKIM / DMARC
-│   ├── header_analyzer.py     # Mismatch and anomaly detection
-│   ├── origin_tracer.py       # Relay chain + first public IP
-│   ├── geolocator.py          # ip-api / FreeIPAPI / GeoLite2
-│   ├── domain_intel.py        # WHOIS age, look-alike domains
-│   ├── url_analyzer.py        # Link checks
-│   ├── classifier.py          # Load model + predict phishing probability
-│   ├── scorer.py              # Combine everything into 0–100
-│   └── report.py              # Build HTML / PDF report
+│   ├── parser.py                  # .eml & MIME parser → headers, body, links, attachments
+│   ├── auth_checker.py            # SPF / DKIM / DMARC verification
+│   ├── header_analyzer.py         # Mismatch, spoofing, and anomaly detection
+│   ├── origin_tracer.py           # MTA relay chain & probable origin isolation
+│   ├── geolocator.py              # MaxMind GeoIP2 / ip-api.com geolocation
+│   ├── domain_intel.py            # WHOIS age, typosquatting & IDN homographs
+│   ├── url_analyzer.py            # 8-rule deceptive URL forensic inspection
+│   ├── classifier.py              # ML phishing predictor & keyword fallback
+│   ├── scorer.py                  # Weighted 0–100 risk scoring with explainable reasons
+│   ├── pipeline.py                # Fault-tolerant end-to-end analysis orchestrator
+│   └── report.py                  # Jinja2 forensic HTML report generator
 │
-├── ml/
-│   ├── prepare_data.py        # Read datasets, label, clean
-│   ├── train.py               # Train and save the model
+├── ml/                            # Machine Learning Pipeline
+│   ├── __init__.py
+│   ├── prepare_data.py            # Dataset loading, cleaning, and balancing
+│   ├── train.py                   # TF-IDF + Logistic Regression training & cross-source test
 │   └── model/
-│       └── phishing_model.joblib
+│       └── README.md
 │
 ├── data/
-│   ├── raw/                   # Downloaded datasets (NOT committed)
-│   ├── processed/
-│   └── brands.txt             # Brand list for look-alike checks
+│   ├── raw/                       # Raw email corpora (not committed)
+│   ├── processed/                 # Balanced dataset.csv (not committed)
+│   └── brands.txt                 # Brand registry for typosquatting checks
 │
-├── templates/
-│   ├── index.html             # Upload page
-│   ├── result.html            # Dashboard
-│   └── report_template.html   # Report layout
+├── templates/                     # Jinja2 HTML Templates
+│   ├── base.html                  # App shell, anti-FOUC theme script, header, footer
+│   ├── index.html                 # Modern SPA interface (scan dropzone & dashboard)
+│   ├── preview.html               # Component library showcase page
+│   └── report_template.html       # Standalone printable forensic report
 │
-├── static/
-│   ├── css/style.css
-│   └── js/
-│       ├── main.js            # Upload and UI logic
-│       └── map.js             # Leaflet map drawing
+├── static/                        # Offline-Ready Static Assets
+│   ├── css/
+│   │   ├── tokens.css             # Design tokens (dark & light themes, WCAG 2.2 AA)
+│   │   ├── base.css               # Reset, typography, accessibility utilities, print styles
+│   │   ├── components.css         # Buttons, cards, badges, tabs, tooltips, collapsibles
+│   │   ├── layout.css             # Glass header, brand aperture logo, footer
+│   │   └── dashboard.css          # Aperture gauge, timeline, tables, scan dropzone
+│   ├── js/
+│   │   ├── config.js              # Client config & /meta initialization
+│   │   ├── labels.js              # Central dictionary for all UI text & glossaries
+│   │   ├── theme.js               # Dark/Light theme manager (localStorage & OS listener)
+│   │   ├── defang.js              # URL/domain/email defanging & safe DOM builder
+│   │   ├── api.js                 # Fetch wrapper with timeouts & staged progress
+│   │   ├── app.js                 # App controller & full results dashboard renderer
+│   │   └── components/
+│   │       ├── gauge.js           # SVG aperture lens risk meter
+│   │       ├── timeline.js        # MTA relay hop sequence renderer
+│   │       ├── map.js             # Leaflet routing map & structured table fallback
+│   │       └── copy_button.js     # Accessible 1-click clipboard utility
+│   ├── vendor/
+│   │   └── leaflet/               # Vendored Leaflet v1.9.4 JS and CSS
+│   └── fonts/
+│       └── download_fonts.py      # Local font downloader helper
 │
-├── samples/                   # Safe sample .eml files for demo/testing
+├── samples/                       # Safe sample .eml files for demo and testing
 │   ├── legit_sample.eml
 │   └── phishing_sample.eml
 │
-└── tests/
+└── tests/                         # Comprehensive Automated Test Suites
     ├── test_parser.py
+    ├── test_auth_checker.py
+    ├── test_header_analyzer.py
     ├── test_origin_tracer.py
+    ├── test_geolocator.py
+    ├── test_domain_intel.py
     ├── test_url_analyzer.py
-    └── test_scorer.py
+    ├── test_classifier.py
+    ├── test_scorer.py
+    ├── test_report.py
+    ├── test_api.py
+    ├── test_meta_and_security.py
+    ├── test_ui_routes.py
+    ├── test_dashboard_components.py
+    └── test_e2e_frontend.py
 ```
 
 ---
@@ -507,25 +542,26 @@ Open your browser at **http://127.0.0.1:5000**
 
 ---
 
-## 14. Usage
+## 14. Web Interface & Usage
 
-1. Open the website.
-2. **Drag and drop** a `.eml` file (or paste the raw headers).
-3. Click **Analyze**.
-4. Review the dashboard:
-   - **Risk gauge:** overall score and label
-   - **Findings table:** each check, result and reason
-   - **Relay timeline:** hop-by-hop path of the email
-   - **Map:** the probable origin and route
-5. Click **Download Report** to save the full result.
-6. Optionally switch on **Mask personal data** before downloading.
+PhishLens features a **"Forensic Lens"** web application designed for security analysts and non-expert users alike.
 
-### How to get a `.eml` file
-- **Gmail:** open the email → ⋮ menu → *Download message*
-- **Outlook (web):** open the email → ⋯ → *View* → *View message source* (save as `.eml`)
-- **Thunderbird:** right-click the email → *Save As…*
+### Key Capabilities
+- 🎯 **Optical Aperture Risk Gauge:** Custom animated SVG lens meter displaying the overall score (0–100) and category point breakdown (Auth, Headers, ML, URLs, Domain).
+- 🌓 **Dark / Light Modes:** Seamless theme switching with OS auto-detection (`prefers-color-scheme`) and `localStorage` persistence.
+- 🧪 **One-Click Demo Samples:** Instantly test with synthetic legitimate and phishing samples without needing local `.eml` files.
+- 🛡 **Hostile Data Defanging:** All extracted URLs and domains are strictly defanged (`hxxps://`, `[.]`) and displayed as plain text (never clickable links) with 1-click clipboard copy buttons.
+- 🛰 **MTA Relay Timeline & Map:** Visualizes each server transit delay and maps geographic routing with Leaflet alongside an accessible structured table alternative.
+- 🔒 **Data Masking & Privacy:** Optional "Mask Personal Data" toggle redacts sender and recipient email addresses and names in both the live dashboard and forensic exports.
+- 📄 **Forensic Reports & PDF Export:** Clean print styling (`window.print()`) formatted for A4/Letter page breaks, plus standalone HTML report and raw JSON exports.
 
-> Always test with your own or sample emails. Never upload someone else's private email.
+### Step-by-Step Flow
+1. Open **http://127.0.0.1:5000** in any browser.
+2. **Upload** an `.eml` file by dragging it onto the aperture dropzone, **or paste** raw headers into the text tab. (Alternatively, click **"Phishing Sample"** or **"Legitimate Sample"** for an instant demo).
+3. Optionally toggle **"Mask Data"** in the top header.
+4. Click **"Analyze Email"** and watch the staged progress indicator cycle through each forensic stage.
+5. Review the telemetry dashboard: verdict badge, explainable factor pills (`+10`, `+8`), cryptographic auth status, defanged URLs table, and MTA hop timeline.
+6. Click **"Print / Save as PDF"** or **"View Forensic Report"** to document findings.
 
 ---
 
@@ -533,14 +569,22 @@ Open your browser at **http://127.0.0.1:5000**
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/` | Upload page |
-| POST | `/analyze` | Upload a `.eml` file (form field `file`) or raw headers (`raw`). Returns JSON. |
-| GET | `/report/<id>` | Download the report for an analysis |
-| GET | `/health` | Simple "is the server running" check |
+| `GET` | `/` | Web interface (scan dropzone & forensic results dashboard) |
+| `POST` | `/analyze` | Analyze `.eml` upload (`file`) or raw headers (`raw`). Returns full forensic JSON. |
+| `GET` | `/meta` | Configuration metadata: thresholds, category weights, allowed extensions, limits |
+| `GET` | `/sample/<name>` | Fetch demo email contents (`legit` or `phishing`) |
+| `GET` | `/results/<id>` | Fetch stored JSON analysis result by UUID |
+| `GET` | `/report/<id>` | View or download standalone printable HTML forensic report |
+| `GET` | `/preview` | Component library showcase & design token test harness |
+| `GET` | `/health` | Server status and engine version check |
 
-**Example (command line):**
+**Example (cURL CLI):**
 ```bash
+# Upload and analyze an email file
 curl -X POST -F "file=@samples/phishing_sample.eml" http://127.0.0.1:5000/analyze
+
+# View server configuration metadata
+curl http://127.0.0.1:5000/meta
 ```
 
 ---

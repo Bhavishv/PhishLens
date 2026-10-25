@@ -224,31 +224,76 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex="0"]:focus
 .text-right { text-align: right; }
 
 /* ---------------------------------------------------------------------------
- * Print Stylesheet Baseline
+ * Print Stylesheet Baseline (Ink-Friendly, Clean Forensic Documentation)
  * --------------------------------------------------------------------------- */
 @media print {
+  *, *::before, *::after {
+    background: transparent !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
   body {
     background: #ffffff !important;
     color: #000000 !important;
-    font-size: 11pt;
+    font-size: 10pt;
+    line-height: 1.4;
+    padding: 0;
+    margin: 0;
   }
 
-  .no-print, header, footer, .theme-toggle, .btn {
+  .no-print,
+  .app-header,
+  .app-footer,
+  .hero,
+  .analyze-card,
+  #alertContainer,
+  #progressCard,
+  .btn,
+  .btn-copy,
+  .skip-link,
+  .theme-toggle-btn,
+  .sample-buttons {
     display: none !important;
   }
 
   .container {
     max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 !important;
   }
 
-  a {
+  .main-content {
+    padding: 0 !important;
+  }
+
+  .card {
+    border: 1px solid #d1d5db !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 12pt !important;
+    padding: 10pt !important;
+  }
+
+  a, a:visited {
     color: #000000 !important;
-    text-decoration: none !important;
+    text-decoration: underline !important;
   }
 
-  a[href^="http"]::after {
-    content: " (" attr(href) ")";
-    font-size: 8pt;
+  code, pre {
+    border: 1px solid #e5e7eb !important;
+    background-color: #f9fafb !important;
+    color: #111827 !important;
+    font-size: 8.5pt !important;
+  }
+
+  .badge {
+    border: 1px solid #9ca3af !important;
+    background-color: #f3f4f6 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
   }
 }

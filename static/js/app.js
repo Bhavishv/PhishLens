@@ -370,19 +370,31 @@ class AppController {
               ],
             }),
             createSafeElement("div", {
-              className: "flex items-center gap-2",
+              className: "flex items-center gap-2 flex-wrap",
               children: [
                 createSafeElement("button", {
-                  className: "btn btn-secondary btn-sm",
+                  className: "btn btn-secondary btn-sm btn-print-action",
                   text: labels.actions.printReport,
                   attributes: { type: "button", title: "Print or Save as PDF" },
                 }),
+                data.report_url
+                  ? createSafeElement("button", {
+                      className: "btn btn-secondary btn-sm btn-report-action",
+                      text: labels.actions.viewReport,
+                      attributes: { type: "button", title: "Open Standalone Forensic HTML Report" },
+                    })
+                  : null,
                 createSafeElement("button", {
-                  className: "btn btn-ghost btn-sm",
+                  className: "btn btn-ghost btn-sm btn-json-action",
                   text: labels.actions.downloadJson,
                   attributes: { type: "button", title: "Download Raw Analysis JSON" },
                 }),
-              ],
+                createSafeElement("button", {
+                  className: "btn btn-ghost btn-sm btn-reset-action",
+                  text: labels.actions.reset,
+                  attributes: { type: "button", title: "Clear and Analyze Another Email" },
+                }),
+              ].filter(Boolean),
             }),
           ],
         }),
@@ -483,11 +495,21 @@ class AppController {
     });
 
     // Wire up Action Toolbar buttons
-    const printBtn = verdictCard.querySelector("button.btn-secondary");
+    const printBtn = verdictCard.querySelector(".btn-print-action");
     if (printBtn) {
       printBtn.addEventListener("click", () => window.print());
     }
-    const jsonBtn = verdictCard.querySelector("button.btn-ghost");
+
+    const reportBtn = verdictCard.querySelector(".btn-report-action");
+    if (reportBtn && data.report_url) {
+      reportBtn.addEventListener("click", () => {
+        const mask = Boolean(this.maskToggle && this.maskToggle.checked);
+        const reportUrl = `${data.report_url}${mask ? "?mask=1" : ""}`;
+        window.open(reportUrl, "_blank", "noopener,noreferrer");
+      });
+    }
+
+    const jsonBtn = verdictCard.querySelector(".btn-json-action");
     if (jsonBtn) {
       jsonBtn.addEventListener("click", () => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -497,6 +519,21 @@ class AppController {
         a.download = `phishlens_analysis_${data.id || "export"}.json`;
         a.click();
         URL.revokeObjectURL(url);
+      });
+    }
+
+    const resetBtn = verdictCard.querySelector(".btn-reset-action");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", () => {
+        this._clearSelectedFile();
+        if (this.rawTextarea) {
+          this.rawTextarea.value = "";
+          this.rawTextarea.dispatchEvent(new Event("input"));
+        }
+        if (this.resultsContainer) {
+          this.resultsContainer.innerHTML = "";
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
       });
     }
 
