@@ -30,6 +30,31 @@ THRESHOLD_SUSPICIOUS: int = 59  # 30–59 → Suspicious
 THRESHOLD_HIGH: int = 79        # 60–79 → High Risk
 # 80–100 → Critical
 
+# Per-mechanism authentication score contributions (IMPLEMENTATION_PLAN § Subtask 6)
+SCORE_AUTH_SPF_FAIL: int = 10
+SCORE_AUTH_DKIM_FAIL: int = 8
+SCORE_AUTH_DMARC_FAIL: int = 7
+SCORE_AUTH_MECHANISM_MISSING: int = 5
+
+# Header anomaly severity points (capped at WEIGHT_HEADER_ANOMALIES)
+SCORE_HEADER_SEVERITY_HIGH: int = 6
+SCORE_HEADER_SEVERITY_MEDIUM: int = 4
+SCORE_HEADER_SEVERITY_LOW: int = 2
+
+# URL flag severity points (capped at WEIGHT_URLS)
+SCORE_URL_SEVERITY_HIGH: int = 5
+SCORE_URL_SEVERITY_MEDIUM: int = 3
+SCORE_URL_SEVERITY_LOW: int = 1
+
+# Sender domain intelligence points (capped at WEIGHT_SENDER_DOMAIN)
+SCORE_DOMAIN_LOOKALIKE: int = 8
+SCORE_DOMAIN_NEWLY_REGISTERED: int = 7
+SCORE_DOMAIN_LOOKALIKE_AND_NEW: int = 15
+SCORE_DOMAIN_PUNYCODE: int = 5
+
+# ML classifier fallback score when keyword heuristic flags phishing
+SCORE_CONTENT_FALLBACK_PHISHING: int = 15
+
 # ---------------------------------------------------------------------------
 # Authentication
 # ---------------------------------------------------------------------------

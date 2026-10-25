@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PhishLens Forensic Report</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --text: #e7ecf3;
+      --muted: #9aa5b5;
+      --accent: #3b82f6;
+      --critical: #ef4444;
+      --high: #f97316;
+      --suspicious: #eab308;
+      --low: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem;
+      line-height: 1.5;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    header {
+      border-bottom: 1px solid #2d3a4d;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+    h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    section {
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    h2 { margin-top: 0; font-size: 1.15rem; color: var(--accent); }
+    .score-badge {
+      display: inline-block;
+      font-size: 2rem;
+      font-weight: 700;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background: #243044;
+    }
+    .label-critical { color: var(--critical); }
+    .label-high { color: var(--high); }
+    .label-suspicious { color: var(--suspicious); }
+    .label-low { color: var(--low); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #2d3a4d; }
+    th { color: var(--muted); font-weight: 600; }
+    ul { padding-left: 1.25rem; }
+    .limitations { font-size: 0.85rem; color: var(--muted); }
+    code.sha { word-break: break-all; font-size: 0.8rem; }
+    pre.json {
+      background: #0b0f14;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 0.75rem;
+      max-height: 320px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>PhishLens Forensic Report</h1>
+      <p class="meta">Analysis ID: {{ result.id }} · Generated {{ result.timestamp }} · v{{ app_version }}</p>
+      {% if mask_personal_data %}
+      <p class="meta">Personal data masking: enabled</p>
+      {% endif %}
+    </header>
+
+    <section id="summary">
+      <h2>Executive Summary</h2>
+      <p>
+        <span class="score-badge">{{ risk.score }}</span>
+        <span class="label-{{ risk.label | lower | replace(' ', '-') | replace('risk', 'low') }}">
+          {{ risk.label }}
+        </span>
+      </p>
+      <p><strong>SHA-256:</strong> <code class="sha">{{ result.file_sha256 }}</code></p>
+      <p><strong>Subject:</strong> {{ result.email_metadata.subject }}</p>
+      <p><strong>From:</strong> {{ result.email_metadata.from }}</p>
+    </section>
+
+    <section id="risk-breakdown">
+      <h2>Risk Breakdown</h2>
+      <table>
+        <thead>
+          <tr><th>Category</th><th>Points</th></tr>
+        </thead>
+        <tbody>
+          {% for key, val in risk.breakdown.items() %}
+          <tr><td>{{ key.replace('_', ' ') | title }}</td><td>{{ val }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h3>Contributing Factors</h3>
+      <ul>
+        {% for reason in risk.reasons %}
+        <li>{{ reason }}</li>
+        {% else %}
+        <li>No significant risk indicators detected.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section id="authentication">
+      <h2>Authentication</h2>
+      <p>{{ result.authentication.summary }}</p>
+    </section>
+
+    <section id="origin">
+      <h2>Origin &amp; Geolocation</h2>
+      <p><strong>Probable origin IP:</strong> {{ origin.probable_origin_ip or 'Unknown' }}</p>
+      <p><strong>Confidence:</strong> {{ origin.confidence }}</p>
+      {% if geo %}
+      <p>{{ geo.city or 'Unknown city' }}, {{ geo.country or 'Unknown country' }} — {{ geo.isp or 'Unknown ISP' }}</p>
+      {% endif %}
+    </section>
+
+    <section id="limitations">
+      <h2>Limitations &amp; Disclaimer</h2>
+      <div class="limitations">
+        <p>PhishLens is an educational prototype. Results are probabilistic indicators, not legal proof.</p>
+        <ul>
+          <li>IP geolocation is approximate; forged Received headers may mislead origin tracing.</li>
+          <li>ML models were trained on historical public datasets and may not reflect modern phishing.</li>
+          <li>Authentication results depend on unmodified original message content.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="raw-json">
+      <h2>Raw Analysis JSON</h2>
+      <pre class="json">{{ json_pretty }}</pre>
+    </section>
+  </div>
+</body>
+</html>
