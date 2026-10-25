@@ -1,0 +1,83 @@
+# PhishLens — Brand List for Look-Alike Detection
+# One registered domain per line (domain part only, no TLD).
+# Lines starting with # are comments.
+# ~70 brands: global tech + banks + social + ~18 Indian govt/finance portals.
+
+# --- Global Tech ---
+google
+microsoft
+apple
+amazon
+meta
+facebook
+instagram
+twitter
+linkedin
+netflix
+paypal
+dropbox
+adobe
+zoom
+slack
+github
+outlook
+yahoo
+spotify
+uber
+airbnb
+
+# --- Global Banks / Finance ---
+chase
+bankofamerica
+wellsfargo
+citibank
+hsbc
+barclays
+americanexpress
+visa
+mastercard
+stripe
+coinbase
+
+# --- Social / Messaging ---
+whatsapp
+telegram
+discord
+snapchat
+tiktok
+pinterest
+reddit
+
+# --- E-commerce ---
+ebay
+walmart
+target
+alibaba
+flipkart
+shopify
+
+# --- Indian Government ---
+incometax
+epfindia
+irctc
+uidai
+digilocker
+parivahan
+passportindia
+nsdl
+tracesproject
+gst
+mca
+eci
+
+# --- Indian Finance / Banking ---
+sbi
+hdfcbank
+icicibank
+axisbank
+kotakbank
+paytm
+phonepe
+gpay
+razorpay
+bharatpe
