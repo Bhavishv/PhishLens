@@ -3,6 +3,7 @@
 {% block title %}PhishLens — Email Threat Forensic Engine{% endblock %}
 
 {% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/leaflet/leaflet.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 {% endblock %}
 
@@ -145,5 +146,6 @@ Received: from unknown-relay.net (203.0.113.45) by mx.company.com ..."></textare
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='vendor/leaflet/leaflet.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='js/app.js') }}"></script>
 {% endblock %}
