@@ -11,7 +11,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 import config
 from analyzer.pipeline import run_analysis
@@ -23,14 +23,25 @@ _store_lock = threading.Lock()
 _results: dict[str, dict[str, Any]] = {}
 
 
-def _add_cors_headers(response):
+def _add_security_and_cors_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "img-src 'self' data: https://*.tile.openstreetmap.org; "
+        "style-src 'self' 'unsafe-inline'; "
+        "font-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "connect-src 'self'"
+    )
     return response
 
 
-app.after_request(_add_cors_headers)
+app.after_request(_add_security_and_cors_headers)
 
 
 def _cleanup_store() -> None:
@@ -72,9 +83,43 @@ def _get_result(analysis_id: str) -> dict[str, Any] | None:
         return {k: v for k, v in entry.items() if not k.startswith("_")}
 
 
+@app.route("/", methods=["GET"])
+def index():
+    if os.path.isfile(os.path.join("templates", "index.html")):
+        return render_template("index.html", app_version=config.APP_VERSION)
+    return render_template("preview.html", app_version=config.APP_VERSION)
+
+
+@app.route("/preview", methods=["GET"])
+def preview():
+    return render_template("preview.html", app_version=config.APP_VERSION)
+
+
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "version": config.APP_VERSION})
+
+
+@app.route("/meta", methods=["GET"])
+def get_meta():
+    return jsonify({
+        "app_name": "PhishLens",
+        "app_version": config.APP_VERSION,
+        "max_email_size_bytes": config.MAX_EMAIL_SIZE_BYTES,
+        "allowed_extensions": sorted(list(config.ALLOWED_EXTENSIONS)),
+        "thresholds": {
+            "low": config.THRESHOLD_LOW,
+            "suspicious": config.THRESHOLD_SUSPICIOUS,
+            "high": config.THRESHOLD_HIGH,
+        },
+        "weights": {
+            "authentication": config.WEIGHT_AUTHENTICATION,
+            "header_anomalies": config.WEIGHT_HEADER_ANOMALIES,
+            "content_ml": config.WEIGHT_CONTENT_ML,
+            "urls": config.WEIGHT_URLS,
+            "sender_domain": config.WEIGHT_SENDER_DOMAIN,
+        },
+    })
 
 
 @app.route("/analyze", methods=["POST", "OPTIONS"])

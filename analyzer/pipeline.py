@@ -253,6 +253,7 @@ def run_analysis(
             "warnings": ["Domain analysis unavailable"],
         },
         "risk": risk,
+        "attachments": parsed.get("attachments") or [],
         "report_url": f"/report/{result_id}" if result_id else "",
         "warnings": global_warnings,
         "analysis_modules": modules_status,

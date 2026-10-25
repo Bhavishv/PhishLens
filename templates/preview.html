@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}PhishLens Component Showcase & Design System{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div style="margin-bottom: var(--space-8);">
+    <div class="badge badge-accent" style="margin-bottom: var(--space-2);">Design System · Task 1</div>
+    <h1>The Forensic Lens UI System</h1>
+    <p class="text-muted" style="max-width: 680px; font-size: var(--text-md);">
+      Component library showcase and design token verification harness. Test responsiveness, keyboard accessibility, and contrast in both themes.
+    </p>
+  </div>
+
+  <!-- 1. Color System & Semantic Risk Badges -->
+  <section class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-header">
+      <h2 class="card-title">Threat Levels &amp; Semantic Badges</h2>
+      <span class="text-muted" style="font-size: var(--text-xs);">WCAG 2.2 AA Verified</span>
+    </div>
+    <div class="flex" style="flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-4);">
+      <span class="badge badge-low">
+        <span class="badge-dot"></span>
+        Low Risk (0–29)
+      </span>
+      <span class="badge badge-suspicious">
+        <span class="badge-dot"></span>
+        Suspicious (30–59)
+      </span>
+      <span class="badge badge-high">
+        <span class="badge-dot"></span>
+        High Risk (60–79)
+      </span>
+      <span class="badge badge-critical">
+        <span class="badge-dot"></span>
+        Critical (80–100)
+      </span>
+      <span class="badge badge-accent">
+        <span class="badge-dot"></span>
+        Optical Lens Accent
+      </span>
+      <span class="badge badge-neutral">
+        Neutral / Tech
+      </span>
+    </div>
+  </section>
+
+  <!-- 2. Typography & JetBrains Mono Telemetry -->
+  <section class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-header">
+      <h2 class="card-title">Typography &amp; Technical Telemetry</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-4);">
+      <div>
+        <h4 style="margin-bottom: var(--space-2); color: var(--text-muted);">Manrope UI Font</h4>
+        <p style="font-weight: 700; font-size: var(--text-xl);">Forensic Inspection Engine</p>
+        <p style="font-weight: 500; color: var(--text-muted);">
+          Headers, button labels, verdicts, and plain-language analytical summaries.
+        </p>
+      </div>
+      <div>
+        <h4 style="margin-bottom: var(--space-2); color: var(--text-muted);">JetBrains Mono Telemetry</h4>
+        <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2);">
+          <code>203.0.113.45</code>
+          <button class="btn-copy" data-copy-btn data-copy-text="203.0.113.45" aria-label="Copy IP address" title="Copy IP">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+        <div style="display: flex; align-items: center; gap: var(--space-2);">
+          <code style="font-size: 0.8rem;">SHA256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code>
+          <button class="btn-copy" data-copy-btn data-copy-text="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" aria-label="Copy SHA256" title="Copy Hash">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Button Primitives -->
+  <section class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-header">
+      <h2 class="card-title">Interactive Buttons (Touch Target &ge; 44px)</h2>
+    </div>
+    <div class="flex" style="flex-wrap: wrap; gap: var(--space-3); align-items: center;">
+      <button type="button" class="btn btn-primary">Primary Action</button>
+      <button type="button" class="btn btn-secondary">Secondary Action</button>
+      <button type="button" class="btn btn-ghost">Ghost Action</button>
+      <button type="button" class="btn btn-primary btn-sm">Small Button</button>
+      <button type="button" class="btn btn-primary" disabled>Disabled State</button>
+    </div>
+  </section>
+
+  <!-- 4. Tooltips & Collapsible Sections -->
+  <section class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-header">
+      <h2 class="card-title">Progressive Disclosure &amp; Technical Tooltips</h2>
+    </div>
+
+    <!-- Tooltip test -->
+    <p>
+      This email failed
+      <span class="tooltip-wrapper">
+        <span class="tooltip-trigger" tabindex="0" aria-label="DMARC technical explanation">DMARC validation</span>
+        <span class="tooltip-content" role="tooltip">Domain-based Message Authentication, Reporting, and Conformance. Tells receiving servers how to handle messages that fail SPF or DKIM.</span>
+      </span>
+      and contained an anomalous Return-Path.
+    </p>
+
+    <!-- Collapsible Details -->
+    <details class="collapsible">
+      <summary>
+        <span>View Normalized Raw Email Headers</span>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="collapsible-body">
+        <pre>From: security@paypal-verification.com
+To: victim@company.com
+Subject: Immediate Action Required: Account Locked
+Received: from mail.attacker.net (203.0.113.45) by mx.victim.com</pre>
+      </div>
+    </details>
+  </section>
+
+  <!-- 5. Alert Banners -->
+  <section style="margin-bottom: var(--space-6);">
+    <div class="alert alert-info">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      <div>
+        <strong>System Information:</strong> Analysis engine is operating in local privacy mode. No telemetry is shared with external cloud services.
+      </div>
+    </div>
+    <div class="alert alert-warning">
+      <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <div>
+        <strong>Anomalous Behavior:</strong> From domain differs from Return-Path domain. Possible sender spoofing.
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Skeleton Loading Placeholder -->
+  <section class="card" style="margin-bottom: var(--space-6);">
+    <div class="card-header">
+      <h2 class="card-title">Staged Loading Skeleton</h2>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+      <div class="skeleton" style="height: 24px; width: 40%;"></div>
+      <div class="skeleton" style="height: 16px; width: 85%;"></div>
+      <div class="skeleton" style="height: 16px; width: 65%;"></div>
+    </div>
+  </section>
+</div>
+{% endblock %}

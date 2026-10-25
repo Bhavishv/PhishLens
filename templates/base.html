@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PhishLens — Email Threat Forensic Engine{% endblock %}</title>
+  <meta name="description" content="Deep email threat inspection, origin hop tracing, and anomaly scoring engine.">
+
+  <!-- Anti-FOUC Immediate Theme Resolution -->
+  <script>
+    (function() {
+      try {
+        var saved = localStorage.getItem('phishlens_theme');
+        var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Design System Stylesheets -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  {% block styles %}{% endblock %}
+</head>
+<body class="app-shell">
+  <!-- Accessibility Skip Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Application Header -->
+  <header class="app-header" role="banner">
+    <div class="container header-inner">
+      <a href="/" class="brand" aria-label="PhishLens Home">
+        <div class="brand-lens" aria-hidden="true"></div>
+        <div class="brand-text">
+          <span class="brand-name">PhishLens</span>
+          <span class="brand-tagline">Forensic Engine</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- Mask Personal Data Switch -->
+        <label class="mask-toggle-label" title="Redact sender and recipient emails and names">
+          <span class="toggle-switch">
+            <input type="checkbox" id="maskDataToggle" aria-label="Mask personal data">
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </span>
+          <span>Mask Data</span>
+        </label>
+
+        <!-- Dark / Light Theme Switcher Button -->
+        <button type="button" class="theme-toggle-btn" data-theme-toggle aria-label="Toggle color theme">
+          <!-- Sun Icon (shown in Dark mode to switch to Light) -->
+          <svg class="theme-icon icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <!-- Moon Icon (shown in Light mode to switch to Dark) -->
+          <svg class="theme-icon icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Landmark -->
+  <main id="main-content" class="main-content" role="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Application Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <div class="footer-disclaimer">
+        PhishLens is an educational forensic instrument. Threat scores and geolocation are probabilistic indicators, not definitive legal proof.
+      </div>
+      <div class="footer-meta">
+        <span class="status-indicator">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Engine Online</span>
+        </span>
+        <span>·</span>
+        <span>Local Analysis Only</span>
+        <span>·</span>
+        <span>v{{ app_version or "1.0.0" }}</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core JavaScript Modules (ES Modules, No Build Step) -->
+  <script type="module" src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/config.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/labels.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='js/components/copy_button.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
