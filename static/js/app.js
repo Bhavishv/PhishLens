@@ -9,9 +9,11 @@ import { labels } from "./labels.js";
 import { api } from "./api.js";
 import { createSafeElement, defangUrl, defangDomain, defangEmail } from "./defang.js";
 import { renderRiskGauge } from "./components/gauge.js";
-import { renderHopTimeline } from "./components/timeline.js";
-import { renderOriginMapAndTable } from "./components/map.js";
-import { initCopyButtons } from "./components/copy_button.js";
+import { renderWhyWeThinkSo } from "./components/reasons.js";
+import { renderOriginSection } from "./components/map.js";
+import { renderLinksAndAttachments } from "./components/links.js";
+import { renderAnalystDrawer } from "./components/analyst_drawer.js";
+import { initCopyButtons, announceScreenReader } from "./components/copy_button.js";
 
 class AppController {
   constructor() {
@@ -219,7 +221,10 @@ class AppController {
     if (res.ok && this.rawTextarea) {
       this.rawTextarea.value = res.text;
       this.rawTextarea.dispatchEvent(new Event("input"));
-      this._showAlert(`Loaded ${sampleName === "phishing" ? "phishing" : "legitimate"} sample email. Click 'Analyze Email' to scan.`, "info");
+      this._showAlert(`Loaded ${sampleName === "phishing" ? "scam email example" : "clean email example"}. Click 'Check Email Safety' to see the results.`, "info");
+      if (this.analyzeBtn) {
+        this.analyzeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     } else {
       this._showAlert(res.error || "Failed to load sample", "danger");
     }
@@ -343,71 +348,64 @@ class AppController {
 
     const root = createSafeElement("div", { className: "dashboard-root" });
 
+    const riskLevelCfg = labels.getRiskLevel(risk.label);
+
     // -----------------------------------------------------------------------
     // Row 1: Executive Grid (Aperture Gauge + Executive Verdict)
     // -----------------------------------------------------------------------
     const heroRow = createSafeElement("div", { className: "dashboard-hero-row" });
 
-    // 1. Aperture Gauge
-    const gaugeEl = renderRiskGauge(risk, config.weights);
+    // 1. Aperture Gauge (Streamlined, clean)
+    const gaugeEl = renderRiskGauge(risk, config.weights, { showBreakdown: false });
     heroRow.appendChild(gaugeEl);
 
     // 2. Executive Verdict Card
-    const badgeClass = `badge-${(risk.label || "low").toLowerCase().replace(" risk", "").replace(" ", "-")}`;
     const verdictCard = createSafeElement("div", {
       className: "card card-elevated verdict-card",
       children: [
-        // Header
+        // Status Badge
         createSafeElement("div", {
-          className: "verdict-header-row",
+          className: "verdict-status-badge",
           children: [
             createSafeElement("span", {
-              className: `badge ${badgeClass}`,
+              className: `badge ${riskLevelCfg.badgeClass}`,
               style: "font-size: var(--text-sm); padding: var(--space-1) var(--space-4);",
               children: [
                 createSafeElement("span", { className: "badge-dot" }),
-                document.createTextNode(`${risk.label || "Low Risk"} Verdict`),
+                document.createTextNode(riskLevelCfg.name),
               ],
-            }),
-            createSafeElement("div", {
-              className: "flex items-center gap-2 flex-wrap",
-              children: [
-                createSafeElement("button", {
-                  className: "btn btn-secondary btn-sm btn-print-action",
-                  text: labels.actions.printReport,
-                  attributes: { type: "button", title: "Print or Save as PDF" },
-                }),
-                data.report_url
-                  ? createSafeElement("button", {
-                      className: "btn btn-secondary btn-sm btn-report-action",
-                      text: labels.actions.viewReport,
-                      attributes: { type: "button", title: "Open Standalone Forensic HTML Report" },
-                    })
-                  : null,
-                createSafeElement("button", {
-                  className: "btn btn-ghost btn-sm btn-json-action",
-                  text: labels.actions.downloadJson,
-                  attributes: { type: "button", title: "Download Raw Analysis JSON" },
-                }),
-                createSafeElement("button", {
-                  className: "btn btn-ghost btn-sm btn-reset-action",
-                  text: labels.actions.reset,
-                  attributes: { type: "button", title: "Clear and Analyze Another Email" },
-                }),
-              ].filter(Boolean),
             }),
           ],
         }),
 
-        // Subject & Email Metadata
-        createSafeElement("h2", {
-          className: "verdict-subject",
-          text: meta.subject || "(No Subject Provided)",
+        // Primary Verdict Headline (focused on completion for accessibility)
+        createSafeElement("h1", {
+          id: "verdictHeadline",
+          className: "verdict-headline",
+          attributes: { tabindex: "-1" },
+          text: riskLevelCfg.headline,
         }),
 
+        // Plain-Language Verdict Sentence
+        createSafeElement("p", {
+          className: "verdict-sentence",
+          text: riskLevelCfg.sentence,
+        }),
+
+        // Clean Email Metadata Summary
         createSafeElement("div", {
           className: "verdict-meta-grid",
           children: [
+            createSafeElement("div", {
+              className: "verdict-meta-item",
+              children: [
+                createSafeElement("strong", { text: "Subject" }),
+                createSafeElement("span", {
+                  className: "font-semibold",
+                  text: meta.subject || "(No Subject Provided)",
+                }),
+              ],
+            }),
             createSafeElement("div", {
               className: "verdict-meta-item",
               children: [
@@ -429,78 +427,84 @@ class AppController {
                 createSafeElement("span", { text: meta.date || "Not recorded" }),
               ],
             }),
-            createSafeElement("div", {
-              className: "verdict-meta-item",
-              children: [
-                createSafeElement("strong", { text: "File SHA-256" }),
-                createSafeElement("div", {
-                  className: "flex items-center gap-2",
-                  children: [
-                    createSafeElement("code", {
-                      className: "font-mono",
-                      text: (data.file_sha256 || "").slice(0, 18) + "...",
-                    }),
-                    createSafeElement("button", {
-                      className: "btn-copy",
-                      attributes: {
-                        "data-copy-btn": "",
-                        "data-copy-text": data.file_sha256 || "",
-                        "aria-label": "Copy SHA-256",
-                        title: "Copy Hash",
-                      },
-                      children: [document.createTextNode("📋")],
-                    }),
-                  ],
-                }),
-              ],
-            }),
-          ],
-        }),
-
-        // Key Contributing Factors List
-        createSafeElement("div", {
-          className: "reasons-section",
-          children: [
-            createSafeElement("div", {
-              className: "card-title",
-              style: "font-size: var(--text-sm); margin-bottom: var(--space-2);",
-              text: "Key Forensic Risk Indicators",
-            }),
-            createSafeElement("div", {
-              className: "reasons-list",
-              children: (risk.reasons && risk.reasons.length > 0)
-                ? risk.reasons.map((r) => {
-                    const parts = r.split(":");
-                    const pts = parts[0] || "+0";
-                    const desc = parts.slice(1).join(":").trim();
-                    return createSafeElement("div", {
-                      className: "reason-item",
-                      children: [
-                        createSafeElement("span", { className: "reason-pill", text: pts }),
-                        createSafeElement("span", { text: desc }),
-                      ],
-                    });
-                  })
-                : [
-                    createSafeElement("div", {
-                      className: "text-muted",
-                      style: "font-size: var(--text-sm);",
-                      text: "No significant malicious indicators detected in this email.",
-                    }),
-                  ],
-            }),
           ],
         }),
       ],
     });
 
-    // Wire up Action Toolbar buttons
-    const printBtn = verdictCard.querySelector(".btn-print-action");
+    heroRow.appendChild(verdictCard);
+    root.appendChild(heroRow);
+
+    // -----------------------------------------------------------------------
+    // Row 2: "What you should do" Action Checklist Card
+    // -----------------------------------------------------------------------
+    const actionCard = createSafeElement("div", {
+      className: "card card-elevated action-card",
+      children: [
+        createSafeElement("div", {
+          className: "card-header",
+          children: [
+            createSafeElement("h2", {
+              className: "card-title",
+              text: labels.sections.actionsTitle,
+            }),
+          ],
+        }),
+        createSafeElement("ul", {
+          className: "action-checklist",
+          attributes: { "aria-label": "Recommended steps for this email" },
+          children: riskLevelCfg.actions.map((act) =>
+            createSafeElement("li", {
+              className: "action-item",
+              children: [
+                createSafeElement("span", {
+                  className: "action-bullet-icon",
+                  attributes: { "aria-hidden": "true" },
+                  text: "➜",
+                }),
+                createSafeElement("span", { text: act }),
+              ],
+            })
+          ),
+        }),
+        // Action Toolbar (Responsive, thumb-friendly buttons)
+        createSafeElement("div", {
+          className: "action-toolbar",
+          children: [
+            createSafeElement("button", {
+              className: "btn btn-primary btn-lg btn-reset-action",
+              attributes: { type: "button", title: "Clear current results and analyze another email" },
+              text: labels.actions.reset,
+            }),
+            createSafeElement("button", {
+              className: "btn btn-secondary btn-print-action",
+              attributes: { type: "button", title: "Print or Save as PDF" },
+              text: labels.actions.printReport,
+            }),
+            data.report_url
+              ? createSafeElement("button", {
+                  className: "btn btn-secondary btn-report-action",
+                  attributes: { type: "button", title: "Open Standalone HTML Report" },
+                  text: labels.actions.viewReport,
+                })
+              : null,
+            createSafeElement("button", {
+              className: "btn btn-ghost btn-json-action",
+              attributes: { type: "button", title: "Download Raw Analysis JSON" },
+              text: labels.actions.downloadJson,
+            }),
+          ].filter(Boolean),
+        }),
+      ],
+    });
+
+    // Wire up Action Toolbar buttons on actionCard
+    const printBtn = actionCard.querySelector(".btn-print-action");
     if (printBtn) {
       printBtn.addEventListener("click", () => window.print());
     }
 
-    const reportBtn = verdictCard.querySelector(".btn-report-action");
+    const reportBtn = actionCard.querySelector(".btn-report-action");
     if (reportBtn && data.report_url) {
       reportBtn.addEventListener("click", () => {
         const mask = Boolean(this.maskToggle && this.maskToggle.checked);
@@ -509,7 +513,7 @@ class AppController {
       });
     }
 
-    const jsonBtn = verdictCard.querySelector(".btn-json-action");
+    const jsonBtn = actionCard.querySelector(".btn-json-action");
     if (jsonBtn) {
       jsonBtn.addEventListener("click", () => {
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -522,7 +526,7 @@ class AppController {
       });
     }
 
-    const resetBtn = verdictCard.querySelector(".btn-reset-action");
+    const resetBtn = actionCard.querySelector(".btn-reset-action");
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         this._clearSelectedFile();
@@ -537,372 +541,46 @@ class AppController {
       });
     }
 
-    heroRow.appendChild(verdictCard);
-    root.appendChild(heroRow);
+    root.appendChild(actionCard);
 
     // -----------------------------------------------------------------------
-    // Row 2: Two-column Security Checks (Authentication & Domain Intelligence)
+    // Row 3: "Why we think so" (Unified Plain-Language Evidence & Explanations)
     // -----------------------------------------------------------------------
-    const checkRow = createSafeElement("div", {
-      style: "display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: var(--space-6);",
-    });
-
-    // Col A: Cryptographic Authentication
-    const authCard = createSafeElement("div", {
-      className: "card card-elevated",
-      children: [
-        createSafeElement("div", {
-          className: "card-header",
-          children: [
-            createSafeElement("span", { className: "card-title", text: "Cryptographic Authentication" }),
-            createSafeElement("span", { className: "text-muted", style: "font-size: var(--text-xs);", text: "SPF · DKIM · DMARC" }),
-          ],
-        }),
-        createSafeElement("div", {
-          className: "auth-grid",
-          children: ["spf", "dkim", "dmarc"].map((mech) => {
-            const entry = auth[mech] || {};
-            const status = (entry.status || "none").toLowerCase();
-            const isPass = status === "pass";
-            const isFail = ["fail", "softfail", "permerror"].includes(status);
-            const badgeCls = isPass ? "badge-low" : isFail ? "badge-critical" : "badge-neutral";
-
-            return createSafeElement("div", {
-              className: "auth-badge-card",
-              children: [
-                createSafeElement("div", {
-                  className: "auth-badge-header",
-                  children: [
-                    createSafeElement("span", { className: "auth-badge-title", text: mech.toUpperCase() }),
-                    createSafeElement("span", { className: `badge ${badgeCls}`, text: status.toUpperCase() }),
-                  ],
-                }),
-                createSafeElement("div", {
-                  className: "auth-badge-desc",
-                  text: entry.details || "No verification record found.",
-                }),
-              ],
-            });
-          }),
-        }),
-        // Header Anomalies sub-list
-        anomalies.length > 0
-          ? createSafeElement("div", {
-              style: "margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border-subtle);",
-              children: [
-                createSafeElement("div", {
-                  className: "font-semibold",
-                  style: "font-size: var(--text-sm); margin-bottom: var(--space-2);",
-                  text: `Header Inconsistencies (${anomalies.length})`,
-                }),
-                createSafeElement("ul", {
-                  style: "padding-left: var(--space-4); font-size: var(--text-xs); color: var(--text-muted);",
-                  children: anomalies.map((a) =>
-                    createSafeElement("li", {
-                      style: "margin-bottom: 4px;",
-                      children: [
-                        createSafeElement("span", {
-                          className: `badge badge-${a.severity === "high" ? "critical" : "suspicious"}`,
-                          style: "font-size: 0.65rem; margin-right: 6px; padding: 0 4px;",
-                          text: a.severity.toUpperCase(),
-                        }),
-                        document.createTextNode(a.message || a.id),
-                      ],
-                    })
-                  ),
-                }),
-              ],
-            })
-          : null,
-      ].filter(Boolean),
-    });
-    checkRow.appendChild(authCard);
-
-    // Col B: Domain Intelligence & Content ML
-    const domainCard = createSafeElement("div", {
-      className: "card card-elevated",
-      children: [
-        createSafeElement("div", {
-          className: "card-header",
-          children: [
-            createSafeElement("span", { className: "card-title", text: "Domain Reputation & Content ML" }),
-            createSafeElement("span", { className: "text-muted", style: "font-size: var(--text-xs);", text: "WHOIS & NLP" }),
-          ],
-        }),
-        createSafeElement("div", {
-          style: "display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); font-size: var(--text-xs);",
-          children: [
-            createSafeElement("div", {
-              className: "auth-badge-card",
-              children: [
-                createSafeElement("strong", { text: "Sender Domain Age" }),
-                createSafeElement("span", {
-                  className: domain.is_newly_registered ? "text-critical font-bold" : "text-main",
-                  text: domain.age_days !== null && domain.age_days !== undefined
-                    ? `${domain.age_days} days old ${domain.is_newly_registered ? "(Newly Registered)" : ""}`
-                    : "Age Unknown",
-                }),
-              ],
-            }),
-            createSafeElement("div", {
-              className: "auth-badge-card",
-              children: [
-                createSafeElement("strong", { text: "Typosquatting Check" }),
-                createSafeElement("span", {
-                  className: domain.lookalike?.is_lookalike ? "text-critical font-bold" : "text-main",
-                  text: domain.lookalike?.is_lookalike
-                    ? `Resembles ${domain.lookalike.matched_brand}`
-                    : "No Brand Match",
-                }),
-              ],
-            }),
-          ],
-        }),
-        // Content ML summary
-        createSafeElement("div", {
-          className: "auth-badge-card",
-          children: [
-            createSafeElement("div", {
-              className: "flex justify-between items-center",
-              children: [
-                createSafeElement("strong", { text: "NLP Classifier Assessment" }),
-                createSafeElement("span", {
-                  className: `badge badge-${content.label === "phishing" ? "critical" : "low"}`,
-                  text: `${content.label ? content.label.toUpperCase() : "UNKNOWN"} (${Math.round((content.probability || 0) * 100)}%)`,
-                }),
-              ],
-            }),
-            createSafeElement("div", {
-              className: "text-muted",
-              style: "font-size: var(--text-xs); margin-top: 4px;",
-              text: content.fallback
-                ? "Keyword heuristic fallback active (trained model unavailable)"
-                : `TF-IDF Logistic Regression (${content.model_version || "v1"})`,
-            }),
-            (content.top_indicative_terms && content.top_indicative_terms.length > 0)
-              ? createSafeElement("div", {
-                  style: "display: flex; gap: 4px; flex-wrap: wrap; margin-top: var(--space-2);",
-                  children: content.top_indicative_terms.map((term) =>
-                    createSafeElement("span", { className: "badge badge-neutral", text: term })
-                  ),
-                })
-              : null,
-          ].filter(Boolean),
-        }),
-      ],
-    });
-    checkRow.appendChild(domainCard);
-    root.appendChild(checkRow);
+    const reasonsEl = renderWhyWeThinkSo(risk);
+    root.appendChild(reasonsEl);
 
     // -----------------------------------------------------------------------
-    // Row 3: Deceptive URL Findings Table
+    // Row 4: "Where did it come from?" (Plain Sentence + Map + Responsive Hop Cards)
     // -----------------------------------------------------------------------
-    const urlFindings = urls.url_findings || [];
-    const urlCard = createSafeElement("div", {
-      className: "card card-elevated",
-      children: [
-        createSafeElement("div", {
-          className: "card-header",
-          children: [
-            createSafeElement("span", {
-              className: "card-title",
-              text: `Extracted URLs & Deceptive Links (${urls.total_urls || 0} found, ${urls.suspicious_url_count || 0} suspicious)`,
-            }),
-            createSafeElement("span", {
-              className: `badge badge-${urls.risk_indicator === "high" ? "critical" : "neutral"}`,
-              text: `URL Threat: ${(urls.risk_indicator || "low").toUpperCase()}`,
-            }),
-          ],
-        }),
-        createSafeElement("div", {
-          className: "table-responsive",
-          children: [
-            createSafeElement("table", {
-              className: "telemetry-table",
-              attributes: { "aria-label": "Extracted email URLs table" },
-              children: [
-                createSafeElement("thead", {
-                  children: [
-                    createSafeElement("tr", {
-                      children: [
-                        createSafeElement("th", { text: "Defanged Destination URL" }),
-                        createSafeElement("th", { text: "Anchor / Visible Text" }),
-                        createSafeElement("th", { text: "Risk Flags" }),
-                        createSafeElement("th", { text: "Actions" }),
-                      ],
-                    }),
-                  ],
-                }),
-                createSafeElement("tbody", {
-                  children: urlFindings.length > 0
-                    ? urlFindings.map((uf) => {
-                        const defanged = defangUrl(uf.url);
-                        const flags = uf.flags || [];
-                        return createSafeElement("tr", {
-                          children: [
-                            createSafeElement("td", {
-                              children: [createSafeElement("code", { text: defanged })],
-                            }),
-                            createSafeElement("td", {
-                              className: "text-muted",
-                              text: uf.anchor_text ? defangUrl(uf.anchor_text) : "—",
-                            }),
-                            createSafeElement("td", {
-                              children: flags.map((fl) =>
-                                createSafeElement("span", {
-                                  className: `badge badge-${fl.severity === "high" ? "critical" : "suspicious"}`,
-                                  style: "font-size: 0.65rem; margin-right: 4px;",
-                                  text: fl.message || fl.id,
-                                })
-                              ),
-                            }),
-                            createSafeElement("td", {
-                              children: [
-                                createSafeElement("button", {
-                                  className: "btn-copy",
-                                  attributes: {
-                                    "data-copy-btn": "",
-                                    "data-copy-text": uf.url,
-                                    "aria-label": "Copy URL",
-                                    title: "Copy URL",
-                                  },
-                                  children: [document.createTextNode("📋")],
-                                }),
-                              ],
-                            }),
-                          ],
-                        });
-                      })
-                    : [
-                        createSafeElement("tr", {
-                          children: [
-                            createSafeElement("td", {
-                              attributes: { colspan: "4" },
-                              className: "text-center text-muted",
-                              text: "No URLs found in email body.",
-                            }),
-                          ],
-                        }),
-                      ],
-                }),
-              ],
-            }),
-          ],
-        }),
-      ],
-    });
-    root.appendChild(urlCard);
+    const originEl = renderOriginSection(origin);
+    root.appendChild(originEl);
 
     // -----------------------------------------------------------------------
-    // Row 4: MTA Relay Timeline & Geographic Origin (Interactive Map + Table)
+    // Row 5: "Links and attachments in this email" (Safe vs Suspicious Categorized)
     // -----------------------------------------------------------------------
-    const timelineEl = renderHopTimeline(origin);
-    root.appendChild(timelineEl);
+    const linksEl = renderLinksAndAttachments(urls, attachments);
+    root.appendChild(linksEl);
 
-    const mapAndTableEl = renderOriginMapAndTable(origin);
-    root.appendChild(mapAndTableEl);
 
     // -----------------------------------------------------------------------
-    // Row 5: Attachments (if any)
+    // Row 6: Collapsible "Technical Details (for Analysts)" Drawer
     // -----------------------------------------------------------------------
-    if (attachments && attachments.length > 0) {
-      const attachCard = createSafeElement("div", {
-        className: "card card-elevated",
-        children: [
-          createSafeElement("div", {
-            className: "card-header",
-            children: [
-              createSafeElement("span", {
-                className: "card-title",
-                text: `MIME Attachments (${attachments.length})`,
-              }),
-            ],
-          }),
-          createSafeElement("div", {
-            className: "table-responsive",
-            children: [
-              createSafeElement("table", {
-                className: "telemetry-table",
-                children: [
-                  createSafeElement("thead", {
-                    children: [
-                      createSafeElement("tr", {
-                        children: [
-                          createSafeElement("th", { text: "Filename" }),
-                          createSafeElement("th", { text: "Type" }),
-                          createSafeElement("th", { text: "Size" }),
-                          createSafeElement("th", { text: "SHA-256 Hash" }),
-                        ],
-                      }),
-                    ],
-                  }),
-                  createSafeElement("tbody", {
-                    children: attachments.map((att) =>
-                      createSafeElement("tr", {
-                        children: [
-                          createSafeElement("td", { text: defangDomain(att.filename || "unknown") }),
-                          createSafeElement("td", { className: "text-muted", text: att.content_type || "application/octet-stream" }),
-                          createSafeElement("td", { text: this._formatBytes(att.size || 0) }),
-                          createSafeElement("td", {
-                            children: [
-                              createSafeElement("code", { text: (att.sha256 || "").slice(0, 16) + "..." }),
-                              createSafeElement("button", {
-                                className: "btn-copy",
-                                style: "margin-left: 6px;",
-                                attributes: {
-                                  "data-copy-btn": "",
-                                  "data-copy-text": att.sha256 || "",
-                                  "aria-label": "Copy Attachment Hash",
-                                  title: "Copy Hash",
-                                },
-                                children: [document.createTextNode("📋")],
-                              }),
-                            ],
-                          }),
-                        ],
-                      })
-                    ),
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      });
-      root.appendChild(attachCard);
-    }
-
-    // -----------------------------------------------------------------------
-    // Row 6: Collapsible Raw Forensic Telemetry
-    // -----------------------------------------------------------------------
-    const rawDetails = createSafeElement("details", {
-      className: "collapsible",
-      style: "margin-top: var(--space-4);",
-      children: [
-        createSafeElement("summary", {
-          children: [
-            createSafeElement("span", { text: "Inspect Complete Raw Forensic JSON Telemetry" }),
-            createSafeElement("span", { className: "text-muted", style: "font-size: var(--text-xs);", text: "Developers & Auditors" }),
-          ],
-        }),
-        createSafeElement("div", {
-          className: "collapsible-body",
-          children: [
-            createSafeElement("pre", {
-              className: "json font-mono",
-              text: JSON.stringify(data, null, 2),
-            }),
-          ],
-        }),
-      ],
-    });
-    root.appendChild(rawDetails);
+    const analystEl = renderAnalystDrawer(data, config.weights);
+    root.appendChild(analystEl);
 
     this.resultsContainer.appendChild(root);
     initCopyButtons(this.resultsContainer);
 
     this.resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    // Accessibility: shift focus to verdict headline and announce completion
+    const verdictHeadline = document.getElementById("verdictHeadline");
+    if (verdictHeadline) {
+      verdictHeadline.focus();
+    }
+    announceScreenReader(`Email analysis complete. Verdict: ${riskLevelCfg.name}. ${riskLevelCfg.headline}`);
   }
+
 }
 
 export const app = new AppController();

@@ -418,8 +418,10 @@ details.collapsible[open] summary .chevron {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
@@ -428,6 +430,7 @@ details.collapsible[open] summary .chevron {
   cursor: pointer;
   transition: all var(--transition-fast);
   position: relative;
+  touch-action: manipulation;
 }
 
 .btn-copy:hover {

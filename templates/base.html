@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}PhishLens — Email Threat Forensic Engine{% endblock %}</title>
-  <meta name="description" content="Deep email threat inspection, origin hop tracing, and anomaly scoring engine.">
+  <title>{% block title %}PhishLens — Email Safety Checker{% endblock %}</title>
+  <meta name="description" content="PhishLens helps you check if an email is a scam, see who really sent it, and know what to do next.">
 
   <!-- Anti-FOUC Immediate Theme Resolution -->
   <script>
@@ -35,13 +35,13 @@
         <div class="brand-lens" aria-hidden="true"></div>
         <div class="brand-text">
           <span class="brand-name">PhishLens</span>
-          <span class="brand-tagline">Forensic Engine</span>
+          <span class="brand-tagline">Email Safety</span>
         </div>
       </a>
 
       <div class="header-actions">
         <!-- Mask Personal Data Switch -->
-        <label class="mask-toggle-label" title="Redact sender and recipient emails and names">
+        <label class="mask-toggle-label" title="Hide sender and recipient names and email addresses">
           <span class="toggle-switch">
             <input type="checkbox" id="maskDataToggle" aria-label="Mask personal data">
             <span class="toggle-slider" aria-hidden="true"></span>
@@ -81,12 +81,12 @@
   <footer class="app-footer" role="contentinfo">
     <div class="container footer-inner">
       <div class="footer-disclaimer">
-        PhishLens is an educational forensic instrument. Threat scores and geolocation are probabilistic indicators, not definitive legal proof.
+        PhishLens helps you spot email scams. Results and server locations are helpful estimates, not absolute legal proof.
       </div>
       <div class="footer-meta">
         <span class="status-indicator">
           <span class="status-dot" aria-hidden="true"></span>
-          <span>Engine Online</span>
+          <span>Ready to check emails</span>
         </span>
         <span>·</span>
         <span>Local Analysis Only</span>
@@ -95,6 +95,9 @@
       </div>
     </div>
   </footer>
+
+  <!-- Screen Reader Live Announcer Region -->
+  <div id="a11yAnnouncer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <!-- Core JavaScript Modules (ES Modules, No Build Step) -->
   <script type="module" src="{{ url_for('static', filename='js/theme.js') }}"></script>

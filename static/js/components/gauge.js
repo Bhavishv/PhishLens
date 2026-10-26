@@ -24,9 +24,10 @@ function getRiskColor(score) {
  *
  * @param {Object} riskData - { score, label, breakdown, reasons }
  * @param {Object} [weights] - Category maximum points from config
+ * @param {Object} [options] - Optional render flags (e.g. showBreakdown)
  * @returns {HTMLElement}
  */
-export function renderRiskGauge(riskData = {}, weights = {}) {
+export function renderRiskGauge(riskData = {}, weights = {}, options = {}) {
   const score = Math.max(0, Math.min(100, Math.round(riskData.score || 0)));
   const label = riskData.label || "Low Risk";
   const breakdown = riskData.breakdown || {};
@@ -126,7 +127,17 @@ export function renderRiskGauge(riskData = {}, weights = {}) {
   });
   container.appendChild(verdictPill);
 
-  // Category Breakdown Bars
+  if (options.showBreakdown) {
+    container.appendChild(renderCategoryBreakdown(breakdown, weights, strokeColor));
+  }
+
+  return container;
+}
+
+/**
+ * Render Category Breakdown Progress Bars (for Analyst Details).
+ */
+export function renderCategoryBreakdown(breakdown = {}, weights = {}, strokeColor = "var(--accent-lens)") {
   const breakdownContainer = createSafeElement("div", {
     className: "gauge-breakdown",
   });
@@ -171,6 +182,5 @@ export function renderRiskGauge(riskData = {}, weights = {}) {
     breakdownContainer.appendChild(itemEl);
   }
 
-  container.appendChild(breakdownContainer);
-  return container;
+  return breakdownContainer;
 }

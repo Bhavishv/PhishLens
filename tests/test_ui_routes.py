@@ -24,15 +24,17 @@ def test_home_serves_index(client):
     resp = client.get("/")
     assert resp.status_code == 200
     html = resp.data.decode("utf-8")
-    assert "Deep Email Threat Telemetry" in html
-    assert "Upload .EML File" in html
-    assert "Paste Raw Email Headers" in html
+    assert "Check If an Email Is Safe" in html
+    assert "Upload .eml File" in html
+    assert "Paste Email Text" in html
+    assert "emlHelpDrawer" in html
     assert "dropzone" in html
     assert "fileInput" in html
     assert "analyzeBtn" in html
     assert "progressCard" in html
     assert "sampleLegitBtn" in html
     assert "samplePhishBtn" in html
+    assert "a11yAnnouncer" in html
 
 
 def test_sample_endpoint_legit(client):
@@ -71,6 +73,12 @@ def test_client_static_assets_exist(client):
         "/static/js/api.js",
         "/static/js/app.js",
         "/static/js/components/copy_button.js",
+        "/static/js/components/gauge.js",
+        "/static/js/components/map.js",
+        "/static/js/components/timeline.js",
+        "/static/js/components/reasons.js",
+        "/static/js/components/links.js",
+        "/static/js/components/analyst_drawer.js",
     ]
     for asset in assets:
         resp = client.get(asset)
