@@ -54,6 +54,8 @@ class AppController {
     this.sampleLegitBtn = document.getElementById("sampleLegitBtn");
     this.samplePhishBtn = document.getElementById("samplePhishBtn");
 
+    this.emptyStateContainer = document.getElementById("emptyStateContainer");
+    this.navTechDetailsToggle = document.getElementById("navTechDetailsToggle");
     this.resultsContainer = document.getElementById("resultsContainer");
 
     // 3. Bind UI event listeners
@@ -62,6 +64,20 @@ class AppController {
     this._bindRawInput();
     this._bindAnalyze();
     this._bindSampleButtons();
+    this._bindTechToggle();
+  }
+
+  _bindTechToggle() {
+    if (!this.navTechDetailsToggle) return;
+    this.navTechDetailsToggle.addEventListener("change", () => {
+      const drawer = document.getElementById("analystDrawer");
+      if (drawer) {
+        drawer.open = this.navTechDetailsToggle.checked;
+        if (drawer.open) {
+          drawer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
+    });
   }
 
   /* -------------------------------------------------------------------------
@@ -291,6 +307,10 @@ class AppController {
       this.analyzeBtn.textContent = isLoading ? labels.upload.scanningButton : labels.upload.scanButton;
     }
 
+    if (this.emptyStateContainer && isLoading) {
+      this.emptyStateContainer.style.display = "none";
+    }
+
     if (this.progressCard) {
       this.progressCard.style.display = isLoading ? "block" : "none";
       if (isLoading && this.progressBarFill) {
@@ -335,6 +355,9 @@ class AppController {
   _renderFullDashboard(data) {
     if (!this.resultsContainer) return;
     this.resultsContainer.innerHTML = "";
+    if (this.emptyStateContainer) {
+      this.emptyStateContainer.style.display = "none";
+    }
 
     const risk = data.risk || {};
     const meta = data.email_metadata || {};
@@ -537,6 +560,9 @@ class AppController {
         if (this.resultsContainer) {
           this.resultsContainer.innerHTML = "";
         }
+        if (this.emptyStateContainer) {
+          this.emptyStateContainer.style.display = "block";
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
     }
@@ -567,6 +593,17 @@ class AppController {
     // -----------------------------------------------------------------------
     const analystEl = renderAnalystDrawer(data, config.weights);
     root.appendChild(analystEl);
+
+    // Sync navbar technical details toggle with analyst drawer
+    const drawer = analystEl.querySelector("#analystDrawer") || analystEl;
+    if (this.navTechDetailsToggle && drawer) {
+      if (this.navTechDetailsToggle.checked) {
+        drawer.open = true;
+      }
+      drawer.addEventListener("toggle", () => {
+        this.navTechDetailsToggle.checked = drawer.open;
+      });
+    }
 
     this.resultsContainer.appendChild(root);
     initCopyButtons(this.resultsContainer);

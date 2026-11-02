@@ -8,28 +8,62 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-  <!-- Hero Section -->
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-badge badge badge-accent">
-      <span class="badge-dot" aria-hidden="true"></span>
-      <span>Email Safety Checker</span>
-    </div>
-    <h1 id="hero-title" class="hero-title">
-      <span>Check If an Email Is Safe</span>
-    </h1>
-    <p class="hero-subtitle">
-      Upload an email to see if it's a scam, check who really sent it, and get clear advice on what to do next.
-    </p>
-  </section>
+<div class="container app-workspace">
+  <!-- =========================================================================
+       Left Column: Workspace Console / Input Sidebar (~380px)
+       Inspired by the TransGraph SaaS control sidebar
+       ========================================================================= -->
+  <aside class="sidebar-console" aria-label="Email Input Console">
+    <div class="console-card card">
+      <!-- Console Header -->
+      <div class="console-header">
+        <div class="badge badge-accent console-badge">
+          <span class="badge-dot" aria-hidden="true"></span>
+          <span>Security Scanner</span>
+        </div>
+        <h1 class="console-title">Check If an Email Is Safe</h1>
+        <p class="console-subtitle">
+          Upload an email to see if it's a scam, check who really sent it, and get clear guidance on what to do next.
+        </p>
+      </div>
 
-  <!-- Interactive Analyze Card -->
-  <section class="analyze-card" aria-label="Email Input and Analysis Section">
-    <div class="analyze-card-inner">
+      <!-- Quick Preset Example Cards (Matching TransGraph Presets) -->
+      <div class="preset-section">
+        <span class="preset-section-label">Try an example</span>
+        <div class="preset-grid">
+          <button type="button" id="sampleLegitBtn" class="preset-card preset-card-clean" title="Load clean corporate email sample">
+            <div class="preset-icon-box preset-icon-clean" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M9 12l2 2 4-4"></path>
+              </svg>
+            </div>
+            <div class="preset-meta">
+              <span class="preset-title">Clean Email</span>
+              <span class="preset-desc">Verified company notice</span>
+            </div>
+          </button>
+
+          <button type="button" id="samplePhishBtn" class="preset-card preset-card-phish" title="Load scam email sample">
+            <div class="preset-icon-box preset-icon-phish" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="preset-meta">
+              <span class="preset-title">Scam Email</span>
+              <span class="preset-desc">Fake account alert</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Input Tabs -->
-      <div class="tab-list" role="tablist" aria-label="Analysis input methods">
-        <button type="button" id="tabUploadBtn" class="tab-btn" role="tab" aria-selected="true" aria-controls="panelUpload">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <div class="tab-list console-tabs" role="tablist" aria-label="Analysis input methods">
+        <button type="button" id="tabUploadBtn" class="tab-btn active" role="tab" aria-selected="true" aria-controls="panelUpload">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
             <polyline points="17 8 12 3 7 8"></polyline>
             <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -38,7 +72,7 @@
         </button>
 
         <button type="button" id="tabPasteBtn" class="tab-btn" role="tab" aria-selected="false" aria-controls="panelPaste">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
           </svg>
@@ -47,28 +81,24 @@
       </div>
 
       <!-- Panel 1: File Upload Dropzone -->
-      <div id="panelUpload" role="tabpanel" aria-labelledby="tabUploadBtn">
+      <div id="panelUpload" class="console-panel" role="tabpanel" aria-labelledby="tabUploadBtn">
         <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="File upload dropzone. Press Enter to browse files.">
           <input type="file" id="fileInput" accept=".eml" class="sr-only" aria-hidden="true">
           <div class="aperture-scan-icon" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="14.31" y1="8" x2="20.05" y2="17.94"></line>
-              <line x1="9.69" y1="8" x2="21.17" y2="8"></line>
-              <line x1="7.38" y1="12" x2="13.12" y2="2.06"></line>
-              <line x1="9.69" y1="16" x2="3.95" y2="6.06"></line>
-              <line x1="14.31" y1="16" x2="2.83" y2="16"></line>
-              <line x1="16.62" y1="12" x2="10.88" y2="21.94"></line>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
             </svg>
           </div>
-          <p class="dropzone-title">Drop your email file (.eml) here</p>
-          <p class="dropzone-browse">or click to select from your computer</p>
-          <p class="dropzone-hint">Accepts .eml email files up to 25 MB</p>
+          <p class="dropzone-title">Drop your .eml file here</p>
+          <p class="dropzone-browse">or click to browse from device</p>
+          <p class="dropzone-hint">Accepts standard .eml files up to 25 MB</p>
 
           <!-- Selected File Chip -->
           <div id="fileChip" class="file-chip" style="display: none;">
             <div class="file-chip-info">
-              <svg class="file-chip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg class="file-chip-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                 <polyline points="14 2 14 8 20 8"></polyline>
               </svg>
@@ -76,7 +106,7 @@
               <span id="fileSize" class="file-chip-size">0 KB</span>
             </div>
             <button type="button" id="removeFileBtn" class="btn btn-ghost btn-sm" aria-label="Remove selected file" title="Remove file">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
@@ -87,7 +117,7 @@
         <!-- How to get a .eml file helper drawer -->
         <details class="eml-help-drawer" id="emlHelpDrawer">
           <summary class="eml-help-summary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="12" cy="12" r="10"></circle>
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
               <line x1="12" y1="17" x2="12.01" y2="17"></line>
@@ -99,25 +129,22 @@
               <div class="eml-client-card">
                 <h4 class="eml-client-title">Gmail</h4>
                 <ol class="eml-client-steps">
-                  <li>Open the email in Gmail.</li>
-                  <li>Click the three vertical dots (⋮) at top right.</li>
-                  <li>Click <strong>Download message</strong>.</li>
+                  <li>Open email ➔ Click (⋮) menu.</li>
+                  <li>Select <strong>Download message</strong>.</li>
                 </ol>
               </div>
               <div class="eml-client-card">
                 <h4 class="eml-client-title">Outlook</h4>
                 <ol class="eml-client-steps">
-                  <li>Open the email in Outlook.</li>
-                  <li>Click the three dots (···) or <strong>File</strong> menu.</li>
-                  <li>Select <strong>Download</strong> or <strong>Save As (.eml)</strong>.</li>
+                  <li>Open email ➔ (···) menu.</li>
+                  <li>Click <strong>Save As (.eml)</strong>.</li>
                 </ol>
               </div>
               <div class="eml-client-card">
-                <h4 class="eml-client-title">Apple Mail / Thunderbird</h4>
+                <h4 class="eml-client-title">Apple Mail</h4>
                 <ol class="eml-client-steps">
-                  <li>Select the email in your list.</li>
                   <li>Click <strong>File ➔ Save As...</strong></li>
-                  <li>Choose <strong>.eml format</strong> and save.</li>
+                  <li>Choose <strong>.eml format</strong>.</li>
                 </ol>
               </div>
             </div>
@@ -126,7 +153,7 @@
       </div>
 
       <!-- Panel 2: Paste Raw Headers -->
-      <div id="panelPaste" role="tabpanel" aria-labelledby="tabPasteBtn" style="display: none;">
+      <div id="panelPaste" class="console-panel" role="tabpanel" aria-labelledby="tabPasteBtn" style="display: none;">
         <label for="rawTextarea" class="sr-only">Paste Email Text or Headers</label>
         <textarea id="rawTextarea" class="raw-textarea" placeholder="Paste email headers or entire message content here...
 
@@ -143,45 +170,109 @@ Received: from unknown-relay.net (203.0.113.45) by mx.company.com ..."></textare
         </div>
       </div>
 
-      <!-- Action Row -->
-      <div class="analyze-actions">
-        <button type="button" id="analyzeBtn" class="btn btn-primary btn-lg">
+      <!-- Action Button -->
+      <div class="console-action">
+        <button type="button" id="analyzeBtn" class="btn btn-primary btn-lg w-full">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <span>Check Email Safety</span>
         </button>
-
-        <!-- Quick Demo Sample Buttons -->
-        <div class="sample-buttons">
-          <span class="text-muted" style="font-size: var(--text-xs);">Try an example:</span>
-          <button type="button" id="sampleLegitBtn" class="btn btn-secondary btn-sm" title="Load clean email sample">
-            Clean Email Example
-          </button>
-          <button type="button" id="samplePhishBtn" class="btn btn-secondary btn-sm" title="Load scam email sample">
-            Scam Email Example
-          </button>
-        </div>
       </div>
     </div>
-  </section>
+  </aside>
 
-  <!-- Dynamic Alert Banners Container -->
-  <div id="alertContainer" aria-live="assertive"></div>
+  <!-- =========================================================================
+       Right Column: Main Stage / Analytics Dashboard (1fr)
+       ========================================================================= -->
+  <main class="main-stage" aria-label="Email Safety Stage">
+    <!-- Dynamic Alert Banners Container -->
+    <div id="alertContainer" aria-live="assertive"></div>
 
-  <!-- Staged Progress Loading Card (Hidden by default) -->
-  <div id="progressCard" class="progress-card" style="display: none;" role="status" aria-live="polite">
-    <div class="aperture-spinner" aria-hidden="true"></div>
-    <div class="progress-title">Checking your email...</div>
-    <div id="progressStageText" class="progress-stage-text">Reading the email...</div>
-    <div class="progress-bar-track" aria-hidden="true">
-      <div id="progressBarFill" class="progress-bar-fill"></div>
+    <!-- Staged Progress Loading Card (Hidden by default) -->
+    <div id="progressCard" class="card card-elevated progress-card" style="display: none;" role="status" aria-live="polite">
+      <div class="aperture-spinner" aria-hidden="true"></div>
+      <div class="progress-title">Checking your email...</div>
+      <div id="progressStageText" class="progress-stage-text">Reading the email...</div>
+      <div class="progress-bar-track" aria-hidden="true">
+        <div id="progressBarFill" class="progress-bar-fill"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- Results Dashboard Container (Rendered on Analysis Completion) -->
-  <section id="resultsContainer" aria-label="Email Safety Results"></section>
+    <!-- Empty State / Welcome Showcase (Visible initially before analysis runs) -->
+    <section id="emptyStateContainer" class="empty-state-container" aria-label="Welcome and Overview">
+      <div class="card card-elevated welcome-card">
+        <div class="welcome-header">
+          <div class="welcome-tag">
+            <span class="badge badge-accent">
+              <span class="badge-dot" aria-hidden="true"></span>
+              <span>Intelligent Email Defense</span>
+            </span>
+          </div>
+          <h2 class="welcome-title">Ready to Inspect &amp; Verify Email Safety</h2>
+          <p class="welcome-desc">
+            PhishLens analyzes email authentication protocols, traces sender network hops across the globe,
+            and inspects links and attachments to protect you from spoofing, credential phishing, and financial scams.
+          </p>
+        </div>
+
+        <div class="welcome-features-grid">
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-green" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                <path d="M9 12l2 2 4-4"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title">Sender Authentication</h3>
+            <p class="feature-desc">
+              Verifies SPF, DKIM, and DMARC alignment to ensure the email genuinely originated from the claimed organization.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-teal" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title">Origin &amp; Relay Map</h3>
+            <p class="feature-desc">
+              Maps relay hops from the originating mail server to your inbox, estimating physical server location and ISP network.
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-icon feature-icon-cyan" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title">Deceptive Links &amp; Files</h3>
+            <p class="feature-desc">
+              Extracts and defangs hyperlinks, detects look-alike domains, and inspects attachment hashes without risk of infection.
+            </p>
+          </div>
+        </div>
+
+        <div class="welcome-tip">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Choose a preset example on the left or drop a <code>.eml</code> file to see the real-time safety verdict.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Dashboard Container (Rendered on Analysis Completion) -->
+    <section id="resultsContainer" aria-label="Email Safety Results"></section>
+  </main>
 </div>
 {% endblock %}
 

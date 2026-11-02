@@ -40,6 +40,25 @@ export function renderRiskGauge(riskData = {}, weights = {}, options = {}) {
     className: "gauge-card card card-elevated",
   });
 
+  // Card Header (Matching SaaS Reference Style)
+  const header = createSafeElement("div", {
+    className: "gauge-card-header",
+    style: "width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);",
+    children: [
+      createSafeElement("span", {
+        className: "text-muted",
+        style: "font-size: var(--text-xs); font-weight: var(--weight-bold); text-transform: uppercase; letter-spacing: 0.05em;",
+        text: "Threat Score",
+      }),
+      createSafeElement("span", {
+        className: "badge badge-ghost",
+        style: "font-size: 0.68rem; font-family: var(--font-mono);",
+        text: "0–100",
+      }),
+    ],
+  });
+  container.appendChild(header);
+
   // SVG Gauge Container
   const svgWrapper = createSafeElement("div", {
     className: "gauge-svg-wrapper",

@@ -1,6 +1,7 @@
 /**
  * PhishLens Layout Stylesheet
- * Header, brand aperture logo, navigation, footer, and structural containers.
+ * Modern SaaS Navigation Bar, Brand Identity, and Responsive Header/Footer.
+ * Inspired by the TransGraph reference interface.
  */
 
 /* ---------------------------------------------------------------------------
@@ -11,8 +12,8 @@
   top: 0;
   z-index: var(--z-header);
   background-color: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-subtle);
   transition: background-color var(--transition-base), border-color var(--transition-base);
 }
@@ -21,11 +22,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
+  min-height: 68px;
   gap: var(--space-4);
 }
 
-/* Brand Identity with Optical Lens Aperture Motif */
+/* Brand Identity with Clean Green Brand Mark */
 .brand {
   display: flex;
   align-items: center;
@@ -33,6 +34,7 @@
   text-decoration: none;
   color: var(--text-main);
   user-select: none;
+  flex-shrink: 0;
 }
 
 .brand:hover {
@@ -41,34 +43,39 @@
 
 .brand-lens {
   position: relative;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-full);
-  background: radial-gradient(circle at 35% 35%, var(--accent-lens) 0%, #1e1b4b 100%);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 12px var(--accent-lens-subtle);
-  border: 1.5px solid var(--accent-lens);
+  box-shadow: 0 0 14px var(--accent-lens-subtle);
   flex-shrink: 0;
+  transition: transform var(--transition-fast);
 }
 
+.brand:hover .brand-lens {
+  transform: scale(1.04);
+}
+
+/* Internal Pulse Wave Motif */
 .brand-lens::before {
   content: "";
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: var(--radius-full);
-  border: 1.5px dashed rgba(255, 255, 255, 0.7);
+  border: 1.5px dashed rgba(255, 255, 255, 0.85);
 }
 
 .brand-lens::after {
   content: "";
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
   border-radius: var(--radius-full);
   background-color: #ffffff;
-  box-shadow: 0 0 4px #ffffff;
+  box-shadow: 0 0 6px #ffffff;
 }
 
 .brand-text {
@@ -81,26 +88,76 @@
   font-weight: var(--weight-bold);
   letter-spacing: -0.02em;
   color: var(--text-main);
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .brand-tagline {
-  font-size: 0.65rem;
-  font-weight: var(--weight-bold);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
   color: var(--accent-lens);
 }
 
-/* Header Actions */
+/* ---------------------------------------------------------------------------
+ * Horizontal Navigation Bar (Matching Reference)
+ * --------------------------------------------------------------------------- */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+@media (max-width: 900px) {
+  .header-nav {
+    display: none; /* Collapses on small screens to prioritize search & controls */
+  }
+}
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+}
+
+.nav-item:hover {
+  color: var(--text-main);
+  background-color: var(--bg-elevated);
+  text-decoration: none;
+}
+
+.nav-item.active {
+  background-color: var(--accent-lens-subtle);
+  color: var(--accent-lens);
+  border-color: var(--accent-lens-border);
+  font-weight: var(--weight-bold);
+}
+
+.nav-item-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------------------------------------------------------------------------
+ * Header Actions (Toggles & Theme Switcher)
+ * --------------------------------------------------------------------------- */
 .header-actions {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-shrink: 0;
 }
 
-/* Toggle Pill for "Mask Personal Data" */
-.mask-toggle-label {
+/* iOS-Style Pill Toggle Switch */
+.mask-toggle-label,
+.tech-toggle-label {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
@@ -109,20 +166,21 @@
   font-weight: var(--weight-medium);
   color: var(--text-muted);
   user-select: none;
-  padding: var(--space-1) var(--space-2);
-  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
   transition: color var(--transition-fast);
 }
 
-.mask-toggle-label:hover {
+.mask-toggle-label:hover,
+.tech-toggle-label:hover {
   color: var(--text-main);
 }
 
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 36px;
-  height: 20px;
+  width: 38px;
+  height: 22px;
 }
 
 .toggle-switch input {
@@ -135,7 +193,7 @@
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-sunken);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
@@ -146,15 +204,15 @@
   content: "";
   height: 14px;
   width: 14px;
-  left: 2px;
-  bottom: 2px;
+  left: 3px;
+  bottom: 3px;
   background-color: var(--text-muted);
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background-color: var(--accent-lens);
+  background: var(--accent-gradient);
   border-color: var(--accent-lens);
 }
 
@@ -173,24 +231,27 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-medium);
   color: var(--text-main);
-  border-radius: var(--radius-md);
-  width: 44px;
-  height: 44px;
+  border-radius: var(--radius-full);
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
 }
 
 .theme-toggle-btn:hover {
   background: var(--bg-elevated);
-  border-color: var(--border-strong);
+  border-color: var(--accent-lens);
+  color: var(--accent-lens);
+  transform: translateY(-1px);
 }
 
 .theme-icon {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 /* Hide / show theme icons based on active data-theme */
@@ -227,7 +288,7 @@
 }
 
 .footer-disclaimer {
-  max-width: 640px;
+  max-width: 680px;
   line-height: var(--leading-normal);
 }
 
@@ -257,15 +318,18 @@
 /* ---------------------------------------------------------------------------
  * Responsive Breakpoints
  * --------------------------------------------------------------------------- */
-@media (max-width: 540px) {
+@media (max-width: 600px) {
   .header-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: var(--space-3) 0;
+    flex-wrap: wrap;
+    padding: var(--space-2) 0;
   }
 
   .header-actions {
-    width: 100%;
-    justify-content: space-between;
+    gap: var(--space-2);
+  }
+
+  .tech-toggle-label span:not(.toggle-switch),
+  .mask-toggle-label span:not(.toggle-switch) {
+    font-size: 0.7rem;
   }
 }

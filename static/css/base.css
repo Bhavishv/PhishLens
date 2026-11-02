@@ -1,11 +1,11 @@
 /**
  * PhishLens Base Stylesheet
- * Reset, typography, font declarations, accessibility foundations, and utilities.
+ * Reset, typography, font declarations, accessibility foundations, layout containers, and utilities.
  */
 
 /* ---------------------------------------------------------------------------
  * Local Font Face Declarations (Offline & Privacy First)
- * Falls back instantly to modern system font stacks if files are not present.
+ * Falls back cleanly to system-ui stacks if local files are loading.
  * --------------------------------------------------------------------------- */
 @font-face {
   font-family: "Manrope";
@@ -56,6 +56,25 @@ body {
   flex-direction: column;
 }
 
+/* Custom SaaS Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-sunken);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
 img, svg, video, canvas {
   display: block;
   max-width: 100%;
@@ -104,6 +123,10 @@ p.muted, .text-muted {
   color: var(--text-muted);
 }
 
+.text-dim {
+  color: var(--text-dim);
+}
+
 code, kbd, samp, pre {
   font-family: var(--font-mono);
   font-size: 0.9em;
@@ -112,7 +135,7 @@ code, kbd, samp, pre {
 code {
   padding: 0.15em 0.35em;
   border-radius: var(--radius-xs);
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-sunken);
   border: 1px solid var(--border-subtle);
   word-break: break-all;
 }
@@ -129,8 +152,6 @@ pre {
 /* ---------------------------------------------------------------------------
  * Accessibility Foundations (WCAG 2.2 AA)
  * --------------------------------------------------------------------------- */
-
-/* Accessible skip-to-content link */
 .skip-link {
   position: absolute;
   top: -100px;
@@ -152,7 +173,7 @@ pre {
   outline-offset: 2px;
 }
 
-/* Clear keyboard focus rings */
+/* Focus Rings */
 :focus-visible {
   outline: 2px solid var(--accent-lens);
   outline-offset: 2px;
@@ -187,7 +208,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex="0"]:focus
 
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1360px;
   margin-left: auto;
   margin-right: auto;
   padding-left: var(--space-4);
@@ -203,7 +224,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex="0"]:focus
 
 .main-content {
   flex: 1 0 auto;
-  padding-top: var(--space-6);
+  padding-top: var(--space-5);
   padding-bottom: var(--space-12);
 }
 
@@ -219,9 +240,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex="0"]:focus
 .gap-4 { gap: var(--space-4); }
 .gap-6 { gap: var(--space-6); }
 
-/* Text Alignment */
+/* Text Alignment & Weights */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
+.font-semibold { font-weight: var(--weight-semibold); }
+.font-bold { font-weight: var(--weight-bold); }
+.font-mono { font-family: var(--font-mono); }
 
 /* ---------------------------------------------------------------------------
  * Print Stylesheet Baseline (Ink-Friendly, Clean Forensic Documentation)
@@ -246,15 +270,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, [tabindex="0"]:focus
   .no-print,
   .app-header,
   .app-footer,
-  .hero,
-  .analyze-card,
+  .sidebar-console,
   #alertContainer,
   #progressCard,
   .btn,
   .btn-copy,
   .skip-link,
-  .theme-toggle-btn,
-  .sample-buttons {
+  .theme-toggle-btn {
     display: none !important;
   }
 
